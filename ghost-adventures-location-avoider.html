@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="system">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -7,9 +7,8 @@
   <style>
     /*
       Theme model:
-      - data-theme="system" uses prefers-color-scheme
-      - data-theme="light" forces light
-      - data-theme="dark" forces dark
+      - Light or Dark only (no system mode)
+      - First load defaults to your OS preference, then persists via localStorage
     */
     html { color-scheme: light dark; }
     html[data-theme="light"] { color-scheme: light; }
@@ -25,19 +24,6 @@
       --muted2: rgba(0,0,0,.55);
       --focus: rgba(0, 120, 215, .9);
       --focusShadow: rgba(0, 120, 215, .15);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      html[data-theme="system"]:root,
-      :root {
-        --bg: #0b0b0c;
-        --fg: #f5f5f7;
-        --card: #111114;
-        --border: rgba(255,255,255,.18);
-        --border2: rgba(255,255,255,.12);
-        --muted: rgba(245,245,247,.75);
-        --muted2: rgba(245,245,247,.60);
-      }
     }
 
     html[data-theme="light"]:root {
@@ -184,6 +170,7 @@
       font-size: 13px;
     }
 
+    /* Sticky within the scroll container */
     th { position: sticky; top: 0; background: var(--card); z-index: 5; }
 
     .pill {
@@ -248,7 +235,7 @@
     <h1>Ghost Adventures — Location Avoider</h1>
     <p class="sub">Search the investigation locations list (from the dataset gathered in this chat) and build a personal “avoid staying here” list for holidays.</p>
     <div class="header-actions">
-      <button id="themeBtn" type="button" title="Toggle theme">Theme: System</button>
+      <button id="themeBtn" type="button" title="Toggle light/dark">Theme: Light</button>
     </div>
   </header>
 
@@ -511,11 +498,21 @@
     // THEME
     // =========================
     const THEME_KEY = "ga_theme_v1";
-    const THEME_ORDER = ["system", "light", "dark"]; // cycles
+    const THEME_ORDER = ["light", "dark"]; // toggles
+
+    function prefersTheme() {
+      try {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
+      } catch {
+        return 'light';
+      }
+    }
 
     function setTheme(theme) {
-      const t = THEME_ORDER.includes(theme) ? theme : "system";
-      document.documentElement.setAttribute("data-theme", t);
+      const t = THEME_ORDER.includes(theme) ? theme : 'light';
+      document.documentElement.setAttribute('data-theme', t);
       els.themeBtn.textContent = `Theme: ${t[0].toUpperCase()}${t.slice(1)}`;
       try { localStorage.setItem(THEME_KEY, t); } catch {}
     }
@@ -523,15 +520,16 @@
     function getTheme() {
       try {
         const t = localStorage.getItem(THEME_KEY);
-        return THEME_ORDER.includes(t) ? t : "system";
+        // migrate old value + default
+        if (t === 'system' || !t) return prefersTheme();
+        return THEME_ORDER.includes(t) ? t : prefersTheme();
       } catch {
-        return "system";
+        return prefersTheme();
       }
     }
 
     function nextTheme(current) {
-      const idx = Math.max(0, THEME_ORDER.indexOf(current));
-      return THEME_ORDER[(idx + 1) % THEME_ORDER.length];
+      return current === 'dark' ? 'light' : 'dark';
     }
 
     // =========================
@@ -698,6 +696,13 @@
       assert(Array.isArray(ALL) && ALL.length > 0, "No locations loaded after normalization.");
       assert(!!els.country && !!els.state, "Country/state select elements not found in DOM.");
       assert(!!els.results, "Results <tbody> not found in DOM.");
+      assert(!!els.themeBtn, "Theme button not found in DOM.");
+
+      // Theme sanity
+      const t = getTheme();
+      assert(THEME_ORDER.includes(t), `getTheme() returned unexpected value: ${t}`);
+      setTheme(t);
+      assert(THEME_ORDER.includes(document.documentElement.getAttribute('data-theme')), "data-theme was not set to light/dark.");
 
       // Minimal functional sanity checks
       fillCountries();
