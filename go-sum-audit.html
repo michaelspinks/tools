@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Security & Integrity Canvas</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --primary: #00add8;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+            --text: #1e293b;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; padding: 20px; 
+            line-height: 1.5; 
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .canvas-grid { display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
+        
+        .card { 
+            background: var(--card); 
+            padding: 24px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+            margin-bottom: 20px; 
+        }
+
+        textarea { 
+            width: 100%; height: 180px; 
+            padding: 12px; border: 1px solid var(--border); 
+            border-radius: 8px; 
+            font-family: 'SFMono-Regular', Consolas, monospace; 
+            font-size: 13px; box-sizing: border-box; 
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        input[type="text"] { 
+            flex-grow: 1; padding: 10px 15px; 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            font-size: 14px;
+        }
+
+        button { 
+            padding: 10px 20px; border-radius: 6px; border: none; 
+            font-weight: 600; cursor: pointer; transition: all 0.2s; 
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .module-list { max-height: 600px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+        
+        .module-item { 
+            padding: 15px; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: flex-start;
+            transition: background 0.1s;
+        }
+
+        .module-item:hover { background: #fcfcfc; }
+        
+        /* Risk Styling */
+        .risk-high { border-left: 6px solid var(--danger); background: #fef2f2; }
+        .risk-med { border-left: 6px solid var(--warning); background: #fffbeb; }
+
+        .module-meta { display: flex; flex-direction: column; gap: 4px; }
+        .module-name { font-weight: 600; font-family: monospace; font-size: 13px; color: #2563eb; }
+        
+        .tag-container { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
+        .tag { 
+            font-size: 11px; background: white; padding: 2px 8px; 
+            border-radius: 4px; border: 1px solid var(--border); font-family: monospace;
+        }
+
+        .badge { 
+            padding: 2px 6px; border-radius: 4px; font-size: 10px; 
+            font-weight: bold; text-transform: uppercase; margin-right: 5px; 
+        }
+        .badge-pseudo { background: var(--danger); color: white; }
+        .badge-custom { background: var(--warning); color: white; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-card { 
+            text-align: center; padding: 15px; background: #f8fafc; 
+            border-radius: 8px; border: 1px solid var(--border); 
+        }
+        .stat-val { display: block; font-size: 24px; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; }
+        
+        .legend { font-size: 12px; color: #64748b; margin-top: 20px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .dot { height: 10px; width: 10px; border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1 style="margin: 0;">Go Supply Chain Canvas</h1>
+            <p style="color: #64748b; margin: 5px 0 0 0;">Dependency Auditor & Security Integrity Tool</p>
+        </div>
+        <div id="lastUpdated" style="font-size: 12px; color: #94a3b8;"></div>
+    </header>
+
+    <div class="canvas-grid">
+        <div class="main">
+            <div class="card">
+                <textarea id="input" placeholder="Paste your go.sum content here..."></textarea>
+                <div class="controls">
+                    <button class="btn-primary" onclick="processGoSum()">Audit Dependencies</button>
+                    <input type="text" id="search" placeholder="Filter by module or domain..." oninput="render()">
+                    <button class="btn-secondary" onclick="exportCSV()">Export Summary</button>
+                </div>
+                
+                <div id="moduleList" class="module-list">
+                    <div style="padding: 60px; text-align: center; color: #94a3b8;">
+                        Paste a <code>go.sum</code> file to begin the security audit.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="card">
+                <h3 style="margin-top: 0; font-size: 16px;">Security Pulse</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span id="stat-total" class="stat-val">0</span>
+                        <span class="stat-label">Total Deps</span>
+                    </div>
+                    <div class="stat-card">
+                        <span id="stat-risk" class="stat-val">0</span>
+                        <span class="stat-label">Risky Items</span>
+                    </div>
+                </div>
+                
+                <div id="security-report" style="margin-top: 20px; font-size: 13px;">
+                    </div>
+
+                <div class="legend">
+                    <div class="legend-item"><span class="dot" style="background:var(--danger)"></span> Red: Pseudo-versions (Direct Commits)</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--warning)"></span> Yellow: Custom/Private Domains</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top: 0; font-size: 16px;">Integrity Check</h3>
+                <p style="font-size: 12px; color: #64748b;">Run this in your terminal to verify integrity locally:</p>
+                <code style="display: block; background: #f1f5f9; padding: 10px; border-radius: 4px; font-size: 11px; word-break: break-all;">
+                    go mod verify
+                </code>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let modulesData = {};
+
+    function processGoSum() {
+        const raw = document.getElementById('input').value.trim();
+        if (!raw) return;
+
+        const lines = raw.split('\n');
+        const modules = {};
+
+        lines.forEach(line => {
+            const parts = line.split(/\s+/);
+            if (parts.length < 2) return;
+
+            const name = parts[0];
+            const version = parts[1].replace('/go.mod', '');
+
+            if (!modules[name]) {
+                modules[name] = {
+                    versions: new Set(),
+                    isCustomDomain: !isStandard(name),
+                    hasPseudo: false
+                };
+            }
+            modules[name].versions.add(version);
+            if (isPseudoVersion(version)) modules[name].hasPseudo = true;
+        });
+
+        modulesData = modules;
+        render();
+        document.getElementById('lastUpdated').innerText = 'Last Audit: ' + new Date().toLocaleTimeString();
+    }
+
+    function isStandard(name) {
+        const whitelist = ['github.com/', 'golang.org/', 'google.golang.org/', 'gopkg.in/'];
+        return whitelist.some(domain => name.startsWith(domain));
+    }
+
+    function isPseudoVersion(v) {
+        // Matches go pseudo-version pattern: v0.0.0-yyyymmddhhmmss-abcdefabcdef
+        return /v\d+\.\d+\.\d+-\d{14}-[a-f0-9]{12}/.test(v) || v.startsWith('v0.0.0');
+    }
+
+    function render() {
+        const query = document.getElementById('search').value.toLowerCase();
+        const container = document.getElementById('moduleList');
+        container.innerHTML = '';
+
+        let count = 0;
+        let riskCount = 0;
+
+        Object.keys(modulesData).sort().forEach(name => {
+            if (query && !name.toLowerCase().includes(query)) return;
+
+            const data = modulesData[name];
+            count++;
+            
+            const item = document.createElement('div');
+            item.className = 'module-item';
+            
+            let riskClass = '';
+            let badgeHtml = '';
+
+            if (data.hasPseudo) {
+                riskClass = 'risk-high';
+                badgeHtml += '<span class="badge badge-pseudo">Pseudo-Version</span>';
+                riskCount++;
+            } else if (data.isCustomDomain) {
+                riskClass = 'risk-med';
+                badgeHtml += '<span class="badge badge-custom">External Domain</span>';
+            }
+
+            item.className += ' ' + riskClass;
+            
+            const versionsArr = Array.from(data.versions);
+            
+            item.innerHTML = `
+                <div class="module-meta">
+                    <div class="module-name">${badgeHtml}${name}</div>
+                    <div class="tag-container">
+                        ${versionsArr.map(v => `<span class="tag">${v}</span>`).join('')}
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: #94a3b8;">
+                    ${versionsArr.length > 1 ? '⚠️ Multi-version' : 'Stable'}
+                </div>
+            `;
+            container.appendChild(item);
+        });
+
+        document.getElementById('stat-total').innerText = count;
+        document.getElementById('stat-risk').innerText = riskCount;
+
+        updateSecurityReport(riskCount);
+    }
+
+    function updateSecurityReport(risks) {
+        const report = document.getElementById('security-report');
+        if (risks > 0) {
+            report.innerHTML = `
+                <div style="padding:10px; background:#fef2f2; color:#b91c1c; border-radius:6px; border:1px solid #fecaca">
+                    <strong>High Alert:</strong> Found ${risks} pseudo-versions. These dependencies are pinned to specific commits rather than releases.
+                </div>`;
+        } else {
+            report.innerHTML = `<div style="color: #10b981;">✅ No immediate supply-chain red flags detected.</div>`;
+        }
+    }
+
+    function exportCSV() {
+        let csv = "Module,Versions,RiskLevel\n";
+        Object.keys(modulesData).forEach(name => {
+            const d = modulesData[name];
+            const risk = d.hasPseudo ? "High" : (d.isCustomDomain ? "Medium" : "Low");
+            csv += `${name},"${Array.from(d.versions).join(', ')}",${risk}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'go-dependency-audit.csv');
+        a.click();
+    }
+</script>
+
+</body>
+</html>
