@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SemVer Validator Canvas</title>
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --card: #ffffff;
+            --primary: #2ecc71;
+            --error: #e74c3c;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .canvas {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 { margin-top: 0; font-size: 1.5rem; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 1rem 0;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        #result {
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .valid { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block !important; }
+        .invalid { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block !important; }
+
+        .hint { font-size: 0.85rem; color: #7f8c8d; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="canvas">
+    <h1>SemVer Validator</h1>
+    <p>Paste a version string below to validate</p>
+    
+    <input type="text" id="semverInput" placeholder="e.g. 1.0.0-alpha+001" autocomplete="off">
+    
+    <div id="result"></div>
+
+    <div class="hint">
+        Format: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
+    </div>
+</div>
+
+<script>
+    const input = document.getElementById('semverInput');
+    const result = document.getElementById('result');
+
+    /**
+     * Official SemVer 2.0.0 RegEx
+     * Checks for:
+     * 1. X.Y.Z (Major.Minor.Patch)
+     * 2. No leading zeros on numbers (except '0' itself)
+     * 3. Optional Pre-release (hyphen)
+     * 4. Optional Build metadata (plus)
+     */
+    const SEMVER_REGEX = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+
+    input.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+
+        if (val === "") {
+            result.className = "";
+            result.style.display = "none";
+            return;
+        }
+
+        if (SEMVER_REGEX.test(val)) {
+            result.textContent = "✓ Valid Semantic Version";
+            result.className = "valid";
+        } else {
+            result.textContent = "✕ Invalid SemVer Format";
+            result.className = "invalid";
+        }
+    });
+</script>
+
+</body>
+</html>
