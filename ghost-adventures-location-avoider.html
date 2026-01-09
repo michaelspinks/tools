@@ -331,7 +331,6 @@
   </main>
 
   <script>
-    const APP_VERSION = "0.4.0";
     // =========================
     // DATA
     // Format: [country, stateOrRegion, cityOrTown, site]
@@ -1092,7 +1091,6 @@
     // INIT + EVENTS
     // =========================
     els.totalCount.textContent = String(ALL.length);
-    document.addEventListener("DOMContentLoaded", () => document.getElementById("version")?.textContent = `v${APP_VERSION}`);
 
     // theme init
     let currentTheme = getTheme();
@@ -1165,6 +1163,5 @@
       if (e.key === "Enter") runDestinationCheck();
     });
   </script>
-  <div id="version" style="text-align:center; padding:12px; opacity:.7; font-size:12px;"></div>
 </body>
 </html>
