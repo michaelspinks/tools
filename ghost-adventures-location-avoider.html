@@ -1092,7 +1092,7 @@
     // INIT + EVENTS
     // =========================
     els.totalCount.textContent = String(ALL.length);
-    document.getElementById("version")?.textContent = `v${APP_VERSION}`;
+    document.addEventListener("DOMContentLoaded", () => document.getElementById("version")?.textContent = `v${APP_VERSION}`);
 
     // theme init
     let currentTheme = getTheme();
@@ -1166,6 +1166,5 @@
     });
   </script>
   <div id="version" style="text-align:center; padding:12px; opacity:.7; font-size:12px;"></div>
-
 </body>
 </html>
