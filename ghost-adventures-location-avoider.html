@@ -1,27 +1,107 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="system">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Ghost Adventures — Location Avoider</title>
   <style>
-    :root { color-scheme: light dark; }
+    /*
+      Theme model:
+      - data-theme="system" uses prefers-color-scheme
+      - data-theme="light" forces light
+      - data-theme="dark" forces dark
+    */
+    html { color-scheme: light dark; }
+    html[data-theme="light"] { color-scheme: light; }
+    html[data-theme="dark"] { color-scheme: dark; }
+
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --card: #ffffff;
+      --border: rgba(0,0,0,.15);
+      --border2: rgba(0,0,0,.10);
+      --muted: rgba(0,0,0,.68);
+      --muted2: rgba(0,0,0,.55);
+      --focus: rgba(0, 120, 215, .9);
+      --focusShadow: rgba(0, 120, 215, .15);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html[data-theme="system"]:root,
+      :root {
+        --bg: #0b0b0c;
+        --fg: #f5f5f7;
+        --card: #111114;
+        --border: rgba(255,255,255,.18);
+        --border2: rgba(255,255,255,.12);
+        --muted: rgba(245,245,247,.75);
+        --muted2: rgba(245,245,247,.60);
+      }
+    }
+
+    html[data-theme="light"]:root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --card: #ffffff;
+      --border: rgba(0,0,0,.15);
+      --border2: rgba(0,0,0,.10);
+      --muted: rgba(0,0,0,.68);
+      --muted2: rgba(0,0,0,.55);
+    }
+
+    html[data-theme="dark"]:root {
+      --bg: #0b0b0c;
+      --fg: #f5f5f7;
+      --card: #111114;
+      --border: rgba(255,255,255,.18);
+      --border2: rgba(255,255,255,.12);
+      --muted: rgba(245,245,247,.75);
+      --muted2: rgba(245,245,247,.60);
+    }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       line-height: 1.35;
+      background: var(--bg);
+      color: var(--fg);
     }
+
     header {
       padding: 16px 18px;
-      border-bottom: 1px solid rgba(127,127,127,.25);
+      text-align: center;
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      background: Canvas;
+      background: var(--bg);
       z-index: 10;
     }
+
     h1 { margin: 0 0 6px; font-size: 18px; }
-    .sub { margin: 0; opacity: .75; font-size: 13px; }
+    .sub { margin: 0; opacity: .9; color: var(--muted); font-size: 13px; }
+
+    .header-actions {
+      position: absolute;
+      right: 18px;
+      top: 14px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .header-actions button {
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 520px) {
+      .header-actions { position: static; margin-top: 10px; justify-content: center; }
+    }
 
     main { padding: 16px 18px 28px; max-width: 1100px; margin: 0 auto; }
 
@@ -32,29 +112,37 @@
       align-items: end;
       margin-bottom: 12px;
     }
-    label { display: block; font-size: 12px; opacity: .8; margin-bottom: 6px; }
+
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+
     input[type="text"], select, textarea {
       width: 100%;
       padding: 10px 11px;
-      border: 1px solid rgba(127,127,127,.35);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: Canvas;
-      color: CanvasText;
+      background: var(--card);
+      color: var(--fg);
       outline: none;
     }
+
+    input[type="text"]::placeholder, textarea::placeholder { color: var(--muted2); }
+
     input[type="text"]:focus, select:focus, textarea:focus {
-      border-color: rgba(0, 120, 215, .9);
-      box-shadow: 0 0 0 3px rgba(0, 120, 215, .15);
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px var(--focusShadow);
     }
+
     button {
       padding: 10px 12px;
-      border: 1px solid rgba(127,127,127,.35);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: Canvas;
-      color: CanvasText;
+      background: var(--card);
+      color: var(--fg);
       cursor: pointer;
       white-space: nowrap;
     }
+
+    button[disabled] { opacity: .6; cursor: not-allowed; }
     button:hover { filter: brightness(1.05); }
     button:active { transform: translateY(1px); }
 
@@ -67,10 +155,10 @@
     }
 
     .card {
-      border: 1px solid rgba(127,127,127,.25);
+      border: 1px solid var(--border);
       border-radius: 14px;
       padding: 12px;
-      background: Canvas;
+      background: var(--card);
     }
 
     .meta {
@@ -80,34 +168,37 @@
       align-items: center;
       margin: 8px 0 0;
       font-size: 12px;
-      opacity: .8;
+      color: var(--muted);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
     }
+
     th, td {
       text-align: left;
       padding: 10px 8px;
-      border-bottom: 1px solid rgba(127,127,127,.18);
+      border-bottom: 1px solid var(--border2);
       vertical-align: top;
       font-size: 13px;
     }
-    th { position: sticky; top: 74px; background: Canvas; z-index: 5; }
+
+    th { position: sticky; top: 0; background: var(--card); z-index: 5; }
 
     .pill {
       display: inline-flex;
       gap: 6px;
       align-items: center;
       padding: 3px 8px;
-      border: 1px solid rgba(127,127,127,.28);
+      border: 1px solid var(--border);
       border-radius: 999px;
       font-size: 12px;
-      opacity: .9;
+      color: var(--muted);
+      background: transparent;
     }
 
-    .muted { opacity: .7; }
+    .muted { color: var(--muted); }
     .nowrap { white-space: nowrap; }
 
     .toolbar {
@@ -132,14 +223,23 @@
 
     .small {
       font-size: 12px;
-      opacity: .75;
+      color: var(--muted);
+    }
+
+    .banner-error {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
     }
 
     @media (max-width: 900px) {
       .controls { grid-template-columns: 1fr 1fr; }
       .controls .full { grid-column: 1 / -1; }
       .row { grid-template-columns: 1fr; }
-      th { top: 116px; }
     }
   </style>
 </head>
@@ -147,6 +247,9 @@
   <header>
     <h1>Ghost Adventures — Location Avoider</h1>
     <p class="sub">Search the investigation locations list (from the dataset gathered in this chat) and build a personal “avoid staying here” list for holidays.</p>
+    <div class="header-actions">
+      <button id="themeBtn" type="button" title="Toggle theme">Theme: System</button>
+    </div>
   </header>
 
   <main>
@@ -179,6 +282,8 @@
       </label>
       <span class="small">Tip: “Exact-ish” requires full-word matches (good for city names).</span>
     </section>
+
+    <div id="errorBanner" class="banner-error" style="display:none;"></div>
 
     <div class="row">
       <section class="card" aria-label="Results">
@@ -234,17 +339,16 @@
     </section>
 
     <p class="small" style="margin-top: 14px;">
-      Data note: the dataset is rebuilt from the “Location(s)” / “Location” columns on Wikipedia’s <em>List of Ghost Adventures episodes</em> (pulled into this canvas and then normalized into Country → State/Region → City/Town). It may still include duplicates (revisits/recaps) and occasional formatting quirks from the source.
+      Data note: this list is based on the locations gathered earlier in this chat (derived from the episode/special “Location(s)” field). It may include duplicates (revisits/recaps) and occasional formatting quirks from the source.
     </p>
   </main>
 
   <script>
     // =========================
-    // DATA (from the gathered list in this chat)
+    // DATA
     // Format: [country, stateOrRegion, cityOrTown, site]
     // =========================
     const RAW = [
-      // Format: [country, stateOrRegion, cityOrTown, site]
       ["Canada","Ontario","Fort Erie","Olde Fort Erie"],
       ["France","Ile-de-France","Paris","Paris Catacombs"],
       ["Ireland","County Dublin","Montpelier Hill","Ireland's Celtic Demons"],
@@ -262,9 +366,8 @@
       ["United Kingdom","Kent","Chatham","Fort Horsted"],
       ["United Kingdom","Scotland","Edinburgh","Edinburgh Vaults"],
 
-      // United States (partial list from earlier gather; functional placeholder)
+      // United States (partial list placeholder)
       ["United States","Alabama","Birmingham","Sloss Furnaces"],
-
       ["United States","Arizona","Apache Junction","Apache Junction"],
       ["United States","Arizona","Bisbee","Bird Cage Theatre"],
       ["United States","Arizona","Casa Grande","Casa Grande Domes"],
@@ -273,7 +376,6 @@
       ["United States","Arizona","Prescott","Palace Saloon"],
       ["United States","Arizona","Tombstone","Bird Cage Theatre"],
       ["United States","Arizona","Yuma","Yuma Territorial Prison"],
-
       ["United States","Arkansas","Eureka Springs","Crescent Hotel"],
 
       ["United States","California","Alameda","USS Hornet"],
@@ -300,7 +402,7 @@
       ["United States","Nevada","Goodsprings","Pioneer Saloon"],
       ["United States","Nevada","Virginia City","Washoe Club"],
 
-      // Oregon (including your callout)
+      // Oregon
       ["United States","Oregon","Astoria","Fort Stevens"],
       ["United States","Oregon","Golden","Golden Ghost Town"],
       ["United States","Oregon","Wolf Creek","Wolf Creek Inn"],
@@ -325,6 +427,12 @@
     // =========================
     const norm = (s) => (s ?? "").toString().trim().toLowerCase();
     const words = (s) => norm(s).split(/[^a-z0-9]+/).filter(Boolean);
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[c]));
+    }
 
     function toCSV(rows) {
       const esc = (v) => {
@@ -395,12 +503,42 @@
       check: document.getElementById("check"),
       runCheck: document.getElementById("runCheck"),
       checkOut: document.getElementById("checkOut"),
+      themeBtn: document.getElementById("themeBtn"),
+      errorBanner: document.getElementById("errorBanner"),
     };
 
-    els.totalCount.textContent = String(ALL.length);
+    // =========================
+    // THEME
+    // =========================
+    const THEME_KEY = "ga_theme_v1";
+    const THEME_ORDER = ["system", "light", "dark"]; // cycles
 
-    // Avoid list persistence
+    function setTheme(theme) {
+      const t = THEME_ORDER.includes(theme) ? theme : "system";
+      document.documentElement.setAttribute("data-theme", t);
+      els.themeBtn.textContent = `Theme: ${t[0].toUpperCase()}${t.slice(1)}`;
+      try { localStorage.setItem(THEME_KEY, t); } catch {}
+    }
+
+    function getTheme() {
+      try {
+        const t = localStorage.getItem(THEME_KEY);
+        return THEME_ORDER.includes(t) ? t : "system";
+      } catch {
+        return "system";
+      }
+    }
+
+    function nextTheme(current) {
+      const idx = Math.max(0, THEME_ORDER.indexOf(current));
+      return THEME_ORDER[(idx + 1) % THEME_ORDER.length];
+    }
+
+    // =========================
+    // AVOID LIST
+    // =========================
     const AVOID_KEY = "ga_avoid_list_v1";
+
     const loadAvoid = () => {
       try {
         const raw = localStorage.getItem(AVOID_KEY);
@@ -408,7 +546,10 @@
         return Array.isArray(arr) ? arr : [];
       } catch { return []; }
     };
-    const saveAvoid = (arr) => localStorage.setItem(AVOID_KEY, JSON.stringify(arr));
+
+    const saveAvoid = (arr) => {
+      try { localStorage.setItem(AVOID_KEY, JSON.stringify(arr)); } catch {}
+    };
 
     let avoid = loadAvoid();
 
@@ -417,11 +558,13 @@
     }
 
     function avoidToText(arr) {
-      // One per line, human-readable.
       return arr
         .slice()
         .sort((a,b) =>
-          a.country.localeCompare(b.country) || a.state.localeCompare(b.state) || a.city.localeCompare(b.city) || a.site.localeCompare(b.site)
+          a.country.localeCompare(b.country) ||
+          a.state.localeCompare(b.state) ||
+          a.city.localeCompare(b.city) ||
+          a.site.localeCompare(b.site)
         )
         .map(r => `${r.city} — ${r.site} (${r.state}, ${r.country})`)
         .join("\n");
@@ -432,9 +575,13 @@
       saveAvoid(avoid);
     }
 
-    // Populate country/state dropdowns
+    // =========================
+    // FILTER DROPDOWNS
+    // =========================
     function fillCountries() {
-      const countries = Array.from(new Set(ALL.map(r => r.country))).sort((a,b)=>a.localeCompare(b));
+      const countries = Array.from(new Set(ALL.map(r => r.country)))
+        .sort((a,b)=>a.localeCompare(b));
+
       els.country.innerHTML = [
         `<option value="">All countries</option>`,
         ...countries.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
@@ -454,19 +601,14 @@
       ].join("");
     }
 
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, (c) => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-      }[c]));
-    }
-
-    // Search
+    // =========================
+    // SEARCH
+    // =========================
     function matchesRow(row, query, exact) {
       if (!query) return true;
       const hay = `${row.country} ${row.state} ${row.city} ${row.site}`;
       if (!exact) return norm(hay).includes(norm(query));
 
-      // Exact-ish: every query token must match a whole token in the haystack.
       const qTokens = words(query);
       if (!qTokens.length) return true;
       const hTokens = new Set(words(hay));
@@ -479,13 +621,11 @@
       const state = els.state.value || "";
       const exact = els.exact.checked;
 
-      const out = ALL.filter(r => {
+      return ALL.filter(r => {
         if (country && r.country !== country) return false;
         if (state && r.state !== state) return false;
         return matchesRow(r, q, exact);
       });
-
-      return out;
     }
 
     function renderResults() {
@@ -522,14 +662,15 @@
       renderResults();
     }
 
-    // Destination checker
+    // =========================
+    // DESTINATION CHECKER
+    // =========================
     function runDestinationCheck() {
       const q = els.check.value.trim();
       els.checkOut.innerHTML = "";
       if (!q) return;
 
-      const exact = true;
-      const hits = ALL.filter(r => matchesRow(r, q, exact));
+      const hits = ALL.filter(r => matchesRow(r, q, true));
 
       if (!hits.length) {
         els.checkOut.innerHTML = `<span class="pill">No exact-ish match found</span><span class="small">Try fewer words (e.g., just the city) or turn off “Exact-ish” in the main search.</span>`;
@@ -547,13 +688,53 @@
     }
 
     // =========================
-    // EVENTS
+    // SELF TESTS (non-fatal; logs + banner)
     // =========================
+    function runSelfTests() {
+      const problems = [];
+      const assert = (cond, msg) => { if (!cond) problems.push(msg); };
+
+      assert(Array.isArray(RAW) && RAW.length > 0, "RAW dataset is empty.");
+      assert(Array.isArray(ALL) && ALL.length > 0, "No locations loaded after normalization.");
+      assert(!!els.country && !!els.state, "Country/state select elements not found in DOM.");
+      assert(!!els.results, "Results <tbody> not found in DOM.");
+
+      // Minimal functional sanity checks
+      fillCountries();
+      fillStates("");
+      assert(els.country.options.length >= 1, "Country dropdown did not populate.");
+      assert(els.state.options.length >= 1, "State dropdown did not populate.");
+
+      if (problems.length) {
+        console.error("Self-tests failed:", problems);
+        els.errorBanner.style.display = "block";
+        els.errorBanner.textContent = `⚠️ App loaded with ${problems.length} issue(s). Open the console for details.`;
+      } else {
+        els.errorBanner.style.display = "none";
+      }
+    }
+
+    // =========================
+    // INIT + EVENTS
+    // =========================
+    els.totalCount.textContent = String(ALL.length);
+
+    // theme init
+    let currentTheme = getTheme();
+    setTheme(currentTheme);
+    els.themeBtn.addEventListener("click", () => {
+      currentTheme = nextTheme(currentTheme);
+      setTheme(currentTheme);
+    });
+
+    // initial render
     fillCountries();
     fillStates("");
     renderAvoid();
     renderResults();
+    runSelfTests();
 
+    // filters
     els.country.addEventListener("change", () => {
       fillStates(els.country.value || "");
       els.state.value = "";
@@ -573,6 +754,7 @@
       renderResults();
     });
 
+    // avoid list add
     els.results.addEventListener("click", (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
@@ -581,6 +763,7 @@
       if (action === "avoid" && key) addToAvoidByKey(key);
     });
 
+    // avoid list actions
     els.copy.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(els.avoidText.value);
@@ -601,11 +784,11 @@
       renderResults();
     });
 
+    // destination checker
     els.runCheck.addEventListener("click", runDestinationCheck);
     els.check.addEventListener("keydown", (e) => {
       if (e.key === "Enter") runDestinationCheck();
     });
-
   </script>
 </body>
 </html>
