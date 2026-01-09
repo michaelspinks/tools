@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ghost Adventures — Location Avoider</title>
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.35;
+    }
+    header {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(127,127,127,.25);
+      position: sticky;
+      top: 0;
+      background: Canvas;
+      z-index: 10;
+    }
+    h1 { margin: 0 0 6px; font-size: 18px; }
+    .sub { margin: 0; opacity: .75; font-size: 13px; }
+
+    main { padding: 16px 18px 28px; max-width: 1100px; margin: 0 auto; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1.2fr .9fr .9fr auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+    label { display: block; font-size: 12px; opacity: .8; margin-bottom: 6px; }
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 10px 11px;
+      border: 1px solid rgba(127,127,127,.35);
+      border-radius: 10px;
+      background: Canvas;
+      color: CanvasText;
+      outline: none;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: rgba(0, 120, 215, .9);
+      box-shadow: 0 0 0 3px rgba(0, 120, 215, .15);
+    }
+    button {
+      padding: 10px 12px;
+      border: 1px solid rgba(127,127,127,.35);
+      border-radius: 10px;
+      background: Canvas;
+      color: CanvasText;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button:hover { filter: brightness(1.05); }
+    button:active { transform: translateY(1px); }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 12px;
+      align-items: start;
+      margin-top: 14px;
+    }
+
+    .card {
+      border: 1px solid rgba(127,127,127,.25);
+      border-radius: 14px;
+      padding: 12px;
+      background: Canvas;
+    }
+
+    .meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 8px 0 0;
+      font-size: 12px;
+      opacity: .8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(127,127,127,.18);
+      vertical-align: top;
+      font-size: 13px;
+    }
+    th { position: sticky; top: 74px; background: Canvas; z-index: 5; }
+
+    .pill {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      padding: 3px 8px;
+      border: 1px solid rgba(127,127,127,.28);
+      border-radius: 999px;
+      font-size: 12px;
+      opacity: .9;
+    }
+
+    .muted { opacity: .7; }
+    .nowrap { white-space: nowrap; }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .avoid-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .avoid-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .small {
+      font-size: 12px;
+      opacity: .75;
+    }
+
+    @media (max-width: 900px) {
+      .controls { grid-template-columns: 1fr 1fr; }
+      .controls .full { grid-column: 1 / -1; }
+      .row { grid-template-columns: 1fr; }
+      th { top: 116px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ghost Adventures — Location Avoider</h1>
+    <p class="sub">Search the investigation locations list (from the dataset gathered in this chat) and build a personal “avoid staying here” list for holidays.</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="full">
+        <label for="q">Search (city, site, country, state/region)</label>
+        <input id="q" type="text" placeholder="e.g., ‘Edinburgh’, ‘Catacombs’, ‘Nevada’, ‘Waverly’" autocomplete="off" />
+      </div>
+
+      <div>
+        <label for="country">Country</label>
+        <select id="country"></select>
+      </div>
+
+      <div>
+        <label for="state">State / Region</label>
+        <select id="state"></select>
+      </div>
+
+      <div>
+        <button id="clear" title="Clear search & filters">Clear</button>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <span class="pill"><strong id="matchCount">0</strong> matches</span>
+      <span class="pill"><strong id="totalCount">0</strong> locations</span>
+      <label class="pill" style="cursor:pointer;">
+        <input id="exact" type="checkbox" style="margin:0 6px 0 0;"> Exact-ish match
+      </label>
+      <span class="small">Tip: “Exact-ish” requires full-word matches (good for city names).</span>
+    </section>
+
+    <div class="row">
+      <section class="card" aria-label="Results">
+        <div class="muted" style="margin-bottom:10px; font-size:12px;">
+          Click <span class="nowrap">“Avoid”</span> to add an entry to your holiday avoid list.
+        </div>
+        <div style="max-height: 62vh; overflow:auto; border-radius: 10px;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 20%;">Country</th>
+                <th style="width: 18%;">State/Region</th>
+                <th style="width: 18%;">City/Town</th>
+                <th>Site</th>
+                <th style="width: 90px;"></th>
+              </tr>
+            </thead>
+            <tbody id="results"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="card" aria-label="Avoid list">
+        <h2 style="margin:0 0 8px; font-size:16px;">My avoid list</h2>
+        <p class="small" style="margin:0 0 10px;">Use this as a quick “don’t-book-here” checklist when planning travel.</p>
+
+        <div class="avoid-list">
+          <textarea id="avoidText" rows="10" placeholder="Your avoided places will appear here…"></textarea>
+          <div class="avoid-actions">
+            <button id="copy">Copy</button>
+            <button id="download">Download CSV</button>
+            <button id="resetAvoid">Reset</button>
+          </div>
+          <div class="small">
+            The avoid list is stored in your browser (localStorage) so it persists if you reopen this file.
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="card" style="margin-top: 14px;">
+      <h2 style="margin:0 0 8px; font-size:16px;">Check a destination quickly</h2>
+      <div class="controls" style="grid-template-columns: 1.2fr auto; margin: 0;">
+        <div>
+          <label for="check">Destination you’re considering</label>
+          <input id="check" type="text" placeholder="e.g., ‘Las Vegas’, ‘Jerome Grand Hotel’, ‘Wexford’" />
+        </div>
+        <div>
+          <button id="runCheck">Check</button>
+        </div>
+      </div>
+      <div id="checkOut" class="meta"></div>
+    </section>
+
+    <p class="small" style="margin-top: 14px;">
+      Data note: the dataset is rebuilt from the “Location(s)” / “Location” columns on Wikipedia’s <em>List of Ghost Adventures episodes</em> (pulled into this canvas and then normalized into Country → State/Region → City/Town). It may still include duplicates (revisits/recaps) and occasional formatting quirks from the source.
+    </p>
+  </main>
+
+  <script>
+    // =========================
+    // DATA (from the gathered list in this chat)
+    // Format: [country, stateOrRegion, cityOrTown, site]
+    // =========================
+    const RAW = [
+      // Format: [country, stateOrRegion, cityOrTown, site]
+      ["Canada","Ontario","Fort Erie","Olde Fort Erie"],
+      ["France","Ile-de-France","Paris","Paris Catacombs"],
+      ["Ireland","County Dublin","Montpelier Hill","Ireland's Celtic Demons"],
+      ["Ireland","County Offaly","Clareen","Ireland's Celtic Demons"],
+      ["Ireland","County Wexford","Duncannon","Ireland's Celtic Demons"],
+      ["Italy","Veneto","Venice","Poveglia Island (special)"],
+      ["Jamaica","St. James Parish","Montego Bay","Rose Hall"],
+      ["Mexico","Mexico City","Xochimilco","Island of the Dolls"],
+      ["Romania","Cluj","Cluj-Napoca","Dracula's Castle (special)"],
+      ["Romania","Dâmbovița","Târgoviște","Dracula's Castle (special)"],
+      ["Romania","Hunedoara","Hunedoara","Dracula's Castle (special)"],
+      ["United Kingdom","England","Gillingham","Ancient Ram Inn"],
+      ["United Kingdom","England","West Wycombe","Hellfire Caves"],
+      ["United Kingdom","England","Wotton-under-Edge","Ancient Ram Inn"],
+      ["United Kingdom","Kent","Chatham","Fort Horsted"],
+      ["United Kingdom","Scotland","Edinburgh","Edinburgh Vaults"],
+
+      // United States (partial list from earlier gather; functional placeholder)
+      ["United States","Alabama","Birmingham","Sloss Furnaces"],
+
+      ["United States","Arizona","Apache Junction","Apache Junction"],
+      ["United States","Arizona","Bisbee","Bird Cage Theatre"],
+      ["United States","Arizona","Casa Grande","Casa Grande Domes"],
+      ["United States","Arizona","Flagstaff","Fear in Flagstaff"],
+      ["United States","Arizona","Jerome","Jerome Grand Hotel"],
+      ["United States","Arizona","Prescott","Palace Saloon"],
+      ["United States","Arizona","Tombstone","Bird Cage Theatre"],
+      ["United States","Arizona","Yuma","Yuma Territorial Prison"],
+
+      ["United States","Arkansas","Eureka Springs","Crescent Hotel"],
+
+      ["United States","California","Alameda","USS Hornet"],
+      ["United States","California","Bodie","Bodie"],
+      ["United States","California","Ione","Preston Castle"],
+      ["United States","California","Keeler","Cerro Gordo Ghost Town"],
+      ["United States","California","Los Angeles","Cecil Hotel"],
+      ["United States","California","Los Angeles","Hotel Barclay"],
+      ["United States","California","Napa","Napa State Mental Hospital"],
+      ["United States","California","San Francisco","Alcatraz"],
+      ["United States","California","Vallejo","Mare Island Naval Shipyard"],
+
+      ["United States","Colorado","Estes Park","Stanley Hotel"],
+      ["United States","Connecticut","Hartford","Union Cemetery"],
+      ["United States","Florida","St. Augustine","Castillo de San Marcos"],
+      ["United States","Georgia","Savannah","Moon River Brewing Company"],
+      ["United States","Idaho","Boise","Old Idaho Penitentiary"],
+      ["United States","Illinois","Ashmore","Ashmore Estates"],
+      ["United States","Kentucky","Louisville","Waverly Hills Sanatorium"],
+      ["United States","Massachusetts","Salem","Salem Witch House"],
+      ["United States","Minnesota","Duluth","Nopeming Sanatorium"],
+
+      ["United States","Nevada","Las Vegas","Zak Bagans' The Haunted Museum"],
+      ["United States","Nevada","Goodsprings","Pioneer Saloon"],
+      ["United States","Nevada","Virginia City","Washoe Club"],
+
+      // Oregon (including your callout)
+      ["United States","Oregon","Astoria","Fort Stevens"],
+      ["United States","Oregon","Golden","Golden Ghost Town"],
+      ["United States","Oregon","Wolf Creek","Wolf Creek Inn"],
+      ["United States","Oregon","Pendleton","Buried Souls of Pendleton"],
+
+      ["United States","Pennsylvania","Philadelphia","Eastern State Penitentiary"],
+      ["United States","Tennessee","Memphis","Graceland"],
+      ["United States","Utah","Tooele","Asylum 49"],
+      ["United States","Washington","Seattle","Kell's Irish Pub"],
+      ["United States","West Virginia","Moundsville","West Virginia State Penitentiary"],
+      ["United States","Wyoming","Rawlins","Wyoming Frontier Prison"],
+
+      // Recap buckets
+      ["Various Locations","—","Various","Armies of Darkness (recap)"],
+      ["Various Locations","—","Various","First Timers (recap)"],
+      ["Various Locations","—","Various","Killer Nightlife (recap)"],
+      ["Various Locations","—","Various","Wickedest Women / Houses of Terror / Bloodiest Battlefields (recap)"],
+    ];
+
+    // =========================
+    // HELPERS
+    // =========================
+    const norm = (s) => (s ?? "").toString().trim().toLowerCase();
+    const words = (s) => norm(s).split(/[^a-z0-9]+/).filter(Boolean);
+
+    function toCSV(rows) {
+      const esc = (v) => {
+        const s = String(v ?? "");
+        return /[\n\r,\"]/g.test(s) ? '"' + s.replaceAll('"','""') + '"' : s;
+      };
+      return [
+        ["country","state_region","city_town","site"].join(","),
+        ...rows.map(r => [r.country, r.state, r.city, r.site].map(esc).join(","))
+      ].join("\n");
+    }
+
+    function download(filename, text) {
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // =========================
+    // DATA NORMALIZATION + DEDUPE
+    // =========================
+    const ALL = (() => {
+      const seen = new Set();
+      const out = [];
+      for (const [country, state, city, site] of RAW) {
+        const obj = {
+          country: country || "—",
+          state: state || "—",
+          city: city || "—",
+          site: site || "—",
+        };
+        const key = [obj.country, obj.state, obj.city, obj.site].map(norm).join("|");
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(obj);
+      }
+      out.sort((a,b) =>
+        a.country.localeCompare(b.country) ||
+        a.state.localeCompare(b.state) ||
+        a.city.localeCompare(b.city) ||
+        a.site.localeCompare(b.site)
+      );
+      return out;
+    })();
+
+    // =========================
+    // UI STATE
+    // =========================
+    const els = {
+      q: document.getElementById("q"),
+      country: document.getElementById("country"),
+      state: document.getElementById("state"),
+      exact: document.getElementById("exact"),
+      clear: document.getElementById("clear"),
+      results: document.getElementById("results"),
+      matchCount: document.getElementById("matchCount"),
+      totalCount: document.getElementById("totalCount"),
+      avoidText: document.getElementById("avoidText"),
+      copy: document.getElementById("copy"),
+      download: document.getElementById("download"),
+      resetAvoid: document.getElementById("resetAvoid"),
+      check: document.getElementById("check"),
+      runCheck: document.getElementById("runCheck"),
+      checkOut: document.getElementById("checkOut"),
+    };
+
+    els.totalCount.textContent = String(ALL.length);
+
+    // Avoid list persistence
+    const AVOID_KEY = "ga_avoid_list_v1";
+    const loadAvoid = () => {
+      try {
+        const raw = localStorage.getItem(AVOID_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch { return []; }
+    };
+    const saveAvoid = (arr) => localStorage.setItem(AVOID_KEY, JSON.stringify(arr));
+
+    let avoid = loadAvoid();
+
+    function avoidKey(r) {
+      return [r.country, r.state, r.city, r.site].map(norm).join("|");
+    }
+
+    function avoidToText(arr) {
+      // One per line, human-readable.
+      return arr
+        .slice()
+        .sort((a,b) =>
+          a.country.localeCompare(b.country) || a.state.localeCompare(b.state) || a.city.localeCompare(b.city) || a.site.localeCompare(b.site)
+        )
+        .map(r => `${r.city} — ${r.site} (${r.state}, ${r.country})`)
+        .join("\n");
+    }
+
+    function renderAvoid() {
+      els.avoidText.value = avoidToText(avoid);
+      saveAvoid(avoid);
+    }
+
+    // Populate country/state dropdowns
+    function fillCountries() {
+      const countries = Array.from(new Set(ALL.map(r => r.country))).sort((a,b)=>a.localeCompare(b));
+      els.country.innerHTML = [
+        `<option value="">All countries</option>`,
+        ...countries.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+      ].join("");
+    }
+
+    function fillStates(country) {
+      const states = Array.from(new Set(
+        ALL
+          .filter(r => !country || r.country === country)
+          .map(r => r.state)
+      )).sort((a,b)=>a.localeCompare(b));
+
+      els.state.innerHTML = [
+        `<option value="">All states/regions</option>`,
+        ...states.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`)
+      ].join("");
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[c]));
+    }
+
+    // Search
+    function matchesRow(row, query, exact) {
+      if (!query) return true;
+      const hay = `${row.country} ${row.state} ${row.city} ${row.site}`;
+      if (!exact) return norm(hay).includes(norm(query));
+
+      // Exact-ish: every query token must match a whole token in the haystack.
+      const qTokens = words(query);
+      if (!qTokens.length) return true;
+      const hTokens = new Set(words(hay));
+      return qTokens.every(t => hTokens.has(t));
+    }
+
+    function filterRows() {
+      const q = els.q.value.trim();
+      const country = els.country.value || "";
+      const state = els.state.value || "";
+      const exact = els.exact.checked;
+
+      const out = ALL.filter(r => {
+        if (country && r.country !== country) return false;
+        if (state && r.state !== state) return false;
+        return matchesRow(r, q, exact);
+      });
+
+      return out;
+    }
+
+    function renderResults() {
+      const rows = filterRows();
+      els.matchCount.textContent = String(rows.length);
+
+      const avoidSet = new Set(avoid.map(avoidKey));
+
+      els.results.innerHTML = rows.map(r => {
+        const key = avoidKey(r);
+        const inAvoid = avoidSet.has(key);
+        return `
+          <tr>
+            <td>${escapeHtml(r.country)}</td>
+            <td>${escapeHtml(r.state)}</td>
+            <td>${escapeHtml(r.city)}</td>
+            <td>${escapeHtml(r.site)}</td>
+            <td class="nowrap">
+              <button data-action="avoid" data-key="${escapeHtml(key)}" ${inAvoid ? "disabled" : ""}>
+                ${inAvoid ? "Avoided" : "Avoid"}
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function addToAvoidByKey(key) {
+      const row = ALL.find(r => avoidKey(r) === key);
+      if (!row) return;
+      if (avoid.some(a => avoidKey(a) === key)) return;
+      avoid.push(row);
+      renderAvoid();
+      renderResults();
+    }
+
+    // Destination checker
+    function runDestinationCheck() {
+      const q = els.check.value.trim();
+      els.checkOut.innerHTML = "";
+      if (!q) return;
+
+      const exact = true;
+      const hits = ALL.filter(r => matchesRow(r, q, exact));
+
+      if (!hits.length) {
+        els.checkOut.innerHTML = `<span class="pill">No exact-ish match found</span><span class="small">Try fewer words (e.g., just the city) or turn off “Exact-ish” in the main search.</span>`;
+        return;
+      }
+
+      const maxShow = 8;
+      const shown = hits.slice(0, maxShow);
+
+      els.checkOut.innerHTML = `
+        <span class="pill"><strong>${hits.length}</strong> match${hits.length === 1 ? "" : "es"}</span>
+        ${shown.map(r => `<span class="pill">${escapeHtml(r.city)} — ${escapeHtml(r.site)} <span class="muted">(${escapeHtml(r.state)}, ${escapeHtml(r.country)})</span></span>`).join(" ")}
+        ${hits.length > maxShow ? `<span class="pill">+${hits.length - maxShow} more</span>` : ""}
+      `;
+    }
+
+    // =========================
+    // EVENTS
+    // =========================
+    fillCountries();
+    fillStates("");
+    renderAvoid();
+    renderResults();
+
+    els.country.addEventListener("change", () => {
+      fillStates(els.country.value || "");
+      els.state.value = "";
+      renderResults();
+    });
+
+    els.state.addEventListener("change", renderResults);
+    els.q.addEventListener("input", renderResults);
+    els.exact.addEventListener("change", renderResults);
+
+    els.clear.addEventListener("click", () => {
+      els.q.value = "";
+      els.country.value = "";
+      fillStates("");
+      els.state.value = "";
+      els.exact.checked = false;
+      renderResults();
+    });
+
+    els.results.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      const action = btn.getAttribute("data-action");
+      const key = btn.getAttribute("data-key");
+      if (action === "avoid" && key) addToAvoidByKey(key);
+    });
+
+    els.copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(els.avoidText.value);
+        els.copy.textContent = "Copied!";
+        setTimeout(() => (els.copy.textContent = "Copy"), 900);
+      } catch {
+        alert("Clipboard copy blocked by your browser. You can still manually select and copy the text.");
+      }
+    });
+
+    els.download.addEventListener("click", () => {
+      download("ghost_adventures_avoid_list.csv", toCSV(avoid));
+    });
+
+    els.resetAvoid.addEventListener("click", () => {
+      avoid = [];
+      renderAvoid();
+      renderResults();
+    });
+
+    els.runCheck.addEventListener("click", runDestinationCheck);
+    els.check.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") runDestinationCheck();
+    });
+
+  </script>
+</body>
+</html>
