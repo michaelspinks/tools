@@ -336,77 +336,441 @@
     // Format: [country, stateOrRegion, cityOrTown, site]
     // =========================
     const RAW = [
-      ["Canada","Ontario","Fort Erie","Olde Fort Erie"],
-      ["France","Ile-de-France","Paris","Paris Catacombs"],
-      ["Ireland","County Dublin","Montpelier Hill","Ireland's Celtic Demons"],
-      ["Ireland","County Offaly","Clareen","Ireland's Celtic Demons"],
-      ["Ireland","County Wexford","Duncannon","Ireland's Celtic Demons"],
-      ["Italy","Veneto","Venice","Poveglia Island (special)"],
-      ["Jamaica","St. James Parish","Montego Bay","Rose Hall"],
-      ["Mexico","Mexico City","Xochimilco","Island of the Dolls"],
-      ["Romania","Cluj","Cluj-Napoca","Dracula's Castle (special)"],
-      ["Romania","Dâmbovița","Târgoviște","Dracula's Castle (special)"],
-      ["Romania","Hunedoara","Hunedoara","Dracula's Castle (special)"],
-      ["United Kingdom","England","Gillingham","Ancient Ram Inn"],
-      ["United Kingdom","England","West Wycombe","Hellfire Caves"],
-      ["United Kingdom","England","Wotton-under-Edge","Ancient Ram Inn"],
-      ["United Kingdom","Kent","Chatham","Fort Horsted"],
-      ["United Kingdom","Scotland","Edinburgh","Edinburgh Vaults"],
+      // Format: [country, stateOrRegion, cityOrTown, site]
 
-      // United States (partial list placeholder)
-      ["United States","Alabama","Birmingham","Sloss Furnaces"],
-      ["United States","Arizona","Apache Junction","Apache Junction"],
-      ["United States","Arizona","Bisbee","Bird Cage Theatre"],
-      ["United States","Arizona","Casa Grande","Casa Grande Domes"],
-      ["United States","Arizona","Flagstaff","Fear in Flagstaff"],
-      ["United States","Arizona","Jerome","Jerome Grand Hotel"],
-      ["United States","Arizona","Prescott","Palace Saloon"],
-      ["United States","Arizona","Tombstone","Bird Cage Theatre"],
-      ["United States","Arizona","Yuma","Yuma Territorial Prison"],
-      ["United States","Arkansas","Eureka Springs","Crescent Hotel"],
+      // CANADA
+      ["Canada", "Ontario", "Fort Erie", "Olde Fort Erie"],
 
-      ["United States","California","Alameda","USS Hornet"],
-      ["United States","California","Bodie","Bodie"],
-      ["United States","California","Ione","Preston Castle"],
-      ["United States","California","Keeler","Cerro Gordo Ghost Town"],
-      ["United States","California","Los Angeles","Cecil Hotel"],
-      ["United States","California","Los Angeles","Hotel Barclay"],
-      ["United States","California","Napa","Napa State Mental Hospital"],
-      ["United States","California","San Francisco","Alcatraz"],
-      ["United States","California","Vallejo","Mare Island Naval Shipyard"],
+      // FRANCE
+      ["France", "Ile-de-France", "Paris", "Netherworld Paris Catacombs"],
 
-      ["United States","Colorado","Estes Park","Stanley Hotel"],
-      ["United States","Connecticut","Hartford","Union Cemetery"],
-      ["United States","Florida","St. Augustine","Castillo de San Marcos"],
-      ["United States","Georgia","Savannah","Moon River Brewing Company"],
-      ["United States","Idaho","Boise","Old Idaho Penitentiary"],
-      ["United States","Illinois","Ashmore","Ashmore Estates"],
-      ["United States","Kentucky","Louisville","Waverly Hills Sanatorium"],
-      ["United States","Massachusetts","Salem","Salem Witch House"],
-      ["United States","Minnesota","Duluth","Nopeming Sanatorium"],
+      // IRELAND
+      ["Ireland", "County Dublin", "Montpelier Hill", "Ireland's Celtic Demons"],
+      ["Ireland", "County Offaly", "Clareen", "Ireland's Celtic Demons"],
+      ["Ireland", "County Wexford", "Duncannon", "Ireland's Celtic Demons"],
 
-      ["United States","Nevada","Las Vegas","Zak Bagans' The Haunted Museum"],
-      ["United States","Nevada","Goodsprings","Pioneer Saloon"],
-      ["United States","Nevada","Virginia City","Washoe Club"],
+      // ITALY
+      ["Italy", "Veneto", "Venice", "Poveglia Island"],
+
+      // JAMAICA
+      ["Jamaica", "St. James Parish", "Montego Bay", "Rose Hall"],
+
+      // MEXICO
+      ["Mexico", "Mexico City", "Xochimilco", "Island of Dolls"],
+
+      // ROMANIA
+      ["Romania", "Cluj", "Cluj-Napoca", "Halloween Special Transylvania"],
+      ["Romania", "Dâmbovița", "Târgoviște", "Halloween Special Transylvania"],
+      ["Romania", "Hunedoara", "Hunedoara", "Halloween Special Transylvania"],
+
+      // UNITED KINGDOM
+      ["UK", "England", "Chatham", "Fort Horsted"],
+      ["UK", "England", "Gillingham", "Fort Horsted"],
+      ["UK", "England", "West Wycombe", "Hellfire Caves"],
+      ["UK", "England", "Wotton-under-Edge", "Ancient Ram Inn"],
+      ["UK", "Scotland", "Edinburgh", "Edinburgh Vaults"],
+
+      // UNITED STATES
+      // Alabama
+      ["US", "Alabama", "Birmingham", "Sloss Furnaces"],
+
+      // Arizona
+      ["US", "Arizona", "Apache Junction", "Apache Junction"],
+      ["US", "Arizona", "Ajo", "Phelps Dodge Hospital"],
+      ["US", "Arizona", "Bisbee", "The Copper Queen Hotel and The Oliver House"],
+      ["US", "Arizona", "Buckeye", "Stardust Ranch"],
+      ["US", "Arizona", "Casa Grande", "The Domes"],
+      ["US", "Arizona", "Flagstaff", "Fear in Flagstaff"],
+      ["US", "Arizona", "Globe", "Bloodshed in the Bordello"],
+      ["US", "Arizona", "Globe", "Old Gila County Jail and Courthouse"],
+      ["US", "Arizona", "Jerome", "Jerome Grand Hotel"],
+      ["US", "Arizona", "Kingman", "Lost Souls of Kingman"],
+      ["US", "Arizona", "Lake Havasu City", "London Bridge"],
+      ["US", "Arizona", "Miami", "Old Bullion Plaza School"],
+      ["US", "Arizona", "Oracle", "Acadia Ranch Sanatorium"],
+      ["US", "Arizona", "Peach Springs", "Grand Canyon Caverns"],
+      ["US", "Arizona", "Phoenix", "Hotel San Carlos"],
+      ["US", "Arizona", "Prescott", "Palace Saloon"],
+      ["US", "Arizona", "Scottsdale", "A Haunting in Scottsdale"],
+      ["US", "Arizona", "Tempe", "Terror in Tempe"],
+      ["US", "Arizona", "Tombstone", "Birdcage Theater"],
+      ["US", "Arizona", "Tombstone", "Return to Tombstone"],
+      ["US", "Arizona", "Tucson", "Hotel Congress"],
+      ["US", "Arizona", "Tucson", "The Slaughter House"],
+      ["US", "Arizona", "Vulture City", "Disturbed in Wickenburg"],
+      ["US", "Arizona", "Wickenburg", "Vulture Mine"],
+      ["US", "Arizona", "Yuma", "Hell Hole Prison"],
+      ["US", "Arizona", "Yuma", "Lutes Casino"],
+
+      // Arkansas
+      ["US", "Arkansas", "Eureka Springs", "Crescent Hotel"],
+      ["US", "Arkansas", "Fort Smith", "Fort Chaffee"],
+
+      // California
+      ["US", "California", "Alameda", "USS Hornet"],
+      ["US", "California", "Altadena", "The Woodbury Home of American Horror Story"],
+      ["US", "California", "Antelope", "Nightmare in Antelope"],
+      ["US", "California", "Avalon", "Curse of Catalina Island"],
+      ["US", "California", "Benicia", "Union Hotel"],
+      ["US", "California", "Big Sur", "Point Sur Lighthouse"],
+      ["US", "California", "Biggs", "Horror in Biggs"],
+      ["US", "California", "Brookdale", "Brookdale Lodge"],
+      ["US", "California", "Calabasas", "King Gillette Ranch"],
+      ["US", "California", "Calico", "Condemned in Calico"],
+      ["US", "California", "Capitola", "Mystery of Rispin Mansion"],
+      ["US", "California", "Carmel", "Tor House"],
+      ["US", "California", "Clovis", "Clovis Wolfe Manor"],
+      ["US", "California", "Death Valley Junction", "Amargosa Opera House"],
+      ["US", "California", "Death Valley National Park", "Scotty's Castle"],
+      ["US", "California", "Deming", "Lewis Flats School"],
+      ["US", "California", "Downey", "Ghost Adventures Devil's Den"],
+      ["US", "California", "Downey", "Hollydale Asylum of Hell"],
+      ["US", "California", "Elk Grove", "Emergency in Elk Grove"],
+      ["US", "California", "Fontana", "Terror in Fontana"],
+      ["US", "California", "Goleta", "Stow House Haunting"],
+      ["US", "California", "Hollywood", "Haunting in the Hills"],
+      ["US", "California", "Hollywood", "Living Dead on La Brea"],
+      ["US", "California", "Hollywood", "Ripley's Believe It or Not"],
+      ["US", "California", "Hollywood", "Terror at the Toy Shop"],
+      ["US", "California", "Ione", "Preston Castle"],
+      ["US", "California", "Jackson", "Kennedy Mine"],
+      ["US", "California", "Jamestown", "Gold Town Terror"],
+      ["US", "California", "Joshua Tree", "The Joshua Tree Inn"],
+      ["US", "California", "Keeler", "Cerro Gordo Ghost Town"],
+      ["US", "California", "La Crescenta", "Mountain Oaks Mayhem"],
+      ["US", "California", "Lake Arrowhead", "Bracken Fern Manor/Tudor House"],
+      ["US", "California", "Lancaster", "Lockdown in Lancaster"],
+      ["US", "California", "Lompoc", "La Purisima Mission"],
+      ["US", "California", "Long Beach", "Queen Mary"],
+      ["US", "California", "Los Angeles", "Black Dahlia House"],
+      ["US", "California", "Los Angeles", "Fort MacArthur Museum"],
+      ["US", "California", "Los Angeles", "Freak Show Murder House"],
+      ["US", "California", "Los Angeles", "Ghost Adventures Cecil Hotel"],
+      ["US", "California", "Los Angeles", "Haunted Hollywood"],
+      ["US", "California", "Los Angeles", "Hotel Barclay"],
+      ["US", "California", "Los Angeles", "LA Hospital of Horror"],
+      ["US", "California", "Los Angeles", "LA Police Station Invasion"],
+      ["US", "California", "Los Angeles", "Linda Vista Hospital"],
+      ["US", "California", "Los Angeles", "Los Feliz Murder House Part 1"],
+      ["US", "California", "Los Angeles", "Los Feliz Murder House Part 2"],
+      ["US", "California", "Los Angeles", "Manor of Malice"],
+      ["US", "California", "Los Angeles", "Nightmare at the Roxie"],
+      ["US", "California", "Los Angeles", "Nightmare in Northridge"],
+      ["US", "California", "Los Angeles", "Orcutt Ranch"],
+      ["US", "California", "Los Angeles", "Pico House Hotel"],
+      ["US", "California", "Los Angeles", "Reseda House of Evil"],
+      ["US", "California", "Los Angeles", "Secret Scientology Lab"],
+      ["US", "California", "Los Angeles", "Sharon Tate Ghost/The Oman House"],
+      ["US", "California", "Los Angeles", "Silent Movie Theater"],
+      ["US", "California", "Los Angeles", "The Beast of West Hills"],
+      ["US", "California", "Los Angeles", "The Comedy Store"],
+      ["US", "California", "Los Angeles", "Village of Lost Souls"],
+      ["US", "California", "Mentryville", "Mentryville Ghost Town"],
+      ["US", "California", "Mokelumne Hill", "Hotel Léger"],
+      ["US", "California", "Montecito", "Montecito Mansion of Mystery"],
+      ["US", "California", "Nevada City", "The National Hotel"],
+      ["US", "California", "North Hollywood", "The Alley of Darkness"],
+      ["US", "California", "Oakdale", "Crisis in Oakdale"],
+      ["US", "California", "Ontario", "The Graber Farm Entity"],
+      ["US", "California", "Oxnard", "Vengeance in Oxnard"],
+      ["US", "California", "Pacific Grove", "Pacific Grove Nightmare"],
+      ["US", "California", "Pasadena", "Hospital of the Damned"],
+      ["US", "California", "Pasadena", "Pasadena Ritual House"],
+      ["US", "California", "Paso Robles", "Panic on Pine Street"],
+      ["US", "California", "Porterville", "Zalud House"],
+      ["US", "California", "Riverside", "Riverside Plane Graveyard"],
+      ["US", "California", "Sacramento", "Dorothea Puente Murder House"],
+      ["US", "California", "Sacramento", "Sacramento Tunnels"],
+      ["US", "California", "Salinas", "Old Stage Road"],
+      ["US", "California", "Salinas", "Steinbeck House Haunting"],
+      ["US", "California", "San Diego", "Darkness of Belmont Park"],
+      ["US", "California", "San Diego", "Lost Souls of the Berkeley"],
+      ["US", "California", "San Diego", "Old Town San Diego"],
+      ["US", "California", "San Diego", "Star of India"],
+      ["US", "California", "San Diego", "Whaley House"],
+      ["US", "California", "San Francisco", "Albion Castle"],
+      ["US", "California", "San Francisco", "Alcatraz"],
+      ["US", "California", "San Francisco", "Market Street Cinema"],
+      ["US", "California", "San Francisco", "Westerfeld House"],
+      ["US", "California", "San Jose", "The Houdini Seance"],
+      ["US", "California", "San Jose", "Return to Winchester Mystery House"],
+      ["US", "California", "San Jose", "Winchester Mystery House"],
+      ["US", "California", "Santa Ana", "Yost Theater & Ritz Hotel"],
+      ["US", "California", "Santa Clarita", "Heritage Junction"],
+      ["US", "California", "Santa Paula", "Glen Tavern Inn"],
+      ["US", "California", "Santa Paula", "Glen Tavern Tragedy"],
+      ["US", "California", "Simi Valley", "Ghost Adventures Poltergeist House Curse"],
+      ["US", "California", "Soledad", "Los Coches Adobe"],
+      ["US", "California", "Sonora", "Tuolumne General Hospital"],
+      ["US", "California", "Tiburon", "Ghost Adventures Devil Island"],
+      ["US", "California", "Walnut Grove", "Chinese Town of Locke"],
+      ["US", "California", "West Hollywood", "The Viper Room"],
+
+      // Colorado
+      ["US", "Colorado", "Cripple Creek", "Cripple Creek"],
+      ["US", "Colorado", "Denver", "Peabody-Whitehead Mansion"],
+      ["US", "Colorado", "Erie", "Exorcism in Erie"],
+      ["US", "Colorado", "Estes Park", "Stanley Hotel"],
+      ["US", "Colorado", "Florissant", "Piotrowski House"],
+      ["US", "Colorado", "Grand Junction", "Melrose Hotel"],
+      ["US", "Colorado", "Idaho Springs", "Colorado Gold Mine"],
+      ["US", "Colorado", "Montrose", "Museum of the Mountain West"],
+
+      // Connecticut
+      ["US", "Connecticut", "Bridgeport", "Remington Arms Factory"],
+      ["US", "Connecticut", "Granby", "The Galka Family"],
+
+      // Florida
+      ["US", "Florida", "Royal Palm Beach", "The Riddle House"],
+      ["US", "Florida", "St. Augustine", "Castillo De San Marcos"],
+
+      // Georgia
+      ["US", "Georgia", "Savannah", "Haunted Savannah"],
+      ["US", "Georgia", "Savannah", "Moon River Brewing Company"],
+
+      // Idaho
+      ["US", "Idaho", "Albion", "Albion Normal School"],
+      ["US", "Idaho", "Boise", "Idaho State Penitentiary"],
+      ["US", "Idaho", "Gooding", "Idaho State Tuberculosis Hospital"],
+      ["US", "Idaho", "Lava Hot Springs", "Lava Hot Springs Inn"],
+      ["US", "Idaho", "St. Anthony", "Idaho State Reform School"],
+
+      // Illinois
+      ["US", "Illinois", "Alton", "Curse of the River Bend McPike Mansion"],
+      ["US", "Illinois", "Ashmore", "Ashmore Estates"],
+      ["US", "Illinois", "Chicago", "Excalibur Nightclub"],
+      ["US", "Illinois", "Joliet", "Serial Killer Spirits John Gacy Prison"],
+
+      // Indiana
+      ["US", "Indiana", "Carmel", "Fox Hollow Farm"],
+      ["US", "Indiana", "Greenfield", "Black Moon Manor"],
+      ["US", "Indiana", "Irvington", "Serial Killer Spirits H.H. Holmes Murder House"],
+      ["US", "Indiana", "New Castle", "Thornhaven Manor"],
+
+      // Iowa
+      ["US", "Iowa", "Council Bluffs", "Serial Killer Spirits Axe Killer Jail"],
+      ["US", "Iowa", "Scotch Grove", "Edinburgh Manor"],
+      ["US", "Iowa", "Villisca", "Villisca Axe Murder House"],
+
+      // Kansas
+      ["US", "Kansas", "Atchison", "Sallie House"],
+
+      // Kentucky
+      ["US", "Kentucky", "Harrodsburg", "Rocky Point Manor"],
+      ["US", "Kentucky", "Louisville", "Waverly Hills Sanatorium"],
+      ["US", "Kentucky", "Maysville", "Kentucky Slave House"],
+      ["US", "Kentucky", "Perryville", "Battle of Perryville Field Hospitals"],
+      ["US", "Kentucky", "Perryville", "Perryville Battlefield"],
+      ["US", "Kentucky", "Wilder", "Bobby Mackey's Music World"],
+
+      // Louisiana
+      ["US", "Louisiana", "Natchitoches", "Magnolia Plantation"],
+      ["US", "Louisiana", "New Orleans", "New Orleans"],
+      ["US", "Louisiana", "St. Francisville", "The Myrtles Plantation"],
+
+      // Massachusetts
+      ["US", "Massachusetts", "Fall River", "Lizzie Borden House"],
+      ["US", "Massachusetts", "Gardner", "Haunted Victorian Mansion"],
+      ["US", "Massachusetts", "North Adams", "Houghton Mansion"],
+      ["US", "Massachusetts", "Salem", "Salem Witch House and Lyceum Restaurant"],
+      ["US", "Massachusetts", "Sudbury", "Longfellow's Wayside Inn"],
+      ["US", "Massachusetts", "Sudbury", "Valentine's Day Special"],
+
+      // Minnesota
+      ["US", "Minnesota", "Duluth", "Nopeming Sanatorium"],
+      ["US", "Minnesota", "Sauk Centre", "The Palmer House"],
+
+      // Mississippi
+      ["US", "Mississippi", "Bolton", "Hauntings of Vicksburg Champion Hill Battlefield"],
+      ["US", "Mississippi", "Natchez", "Kings Tavern"],
+      ["US", "Mississippi", "Vicksburg", "Hauntings of Vicksburg McRaven Mansion"],
+
+      // Missouri
+      ["US", "Missouri", "Bel-Nor", "The Exorcist House"],
+      ["US", "Missouri", "Branson", "The Titanic Museum"],
+      ["US", "Missouri", "Jefferson City", "Missouri State Penitentiary"],
+      ["US", "Missouri", "Kansas City", "Union Station"],
+      ["US", "Missouri", "Liberty", "Odd Fellows Asylum"],
+      ["US", "Missouri", "Springfield", "Pythian Castle"],
+      ["US", "Missouri", "St. Louis", "Lemp Mansion"],
+
+      // Montana
+      ["US", "Montana", "Butte", "Dumas Brothel"],
+      ["US", "Montana", "Deer Lodge", "Old Montana State Prison"],
+      ["US", "Montana", "Dillon", "Bannack Ghost Town"],
+      ["US", "Montana", "Dillon", "Hotel Metlen"],
+      ["US", "Montana", "Twin Bridges", "Twin Bridges Orphanage"],
+
+      // Nevada
+      ["US", "Nevada", "Belmont", "Belmont Ghost Town"],
+      ["US", "Nevada", "Blue Diamond", "Bonnie Spring Ranch"],
+      ["US", "Nevada", "Carson City", "Nevada State Prison"],
+      ["US", "Nevada", "Clark", "Mustang Ranch"],
+      ["US", "Nevada", "Clark County", "Ghost Adventures Lake of Death"],
+      ["US", "Nevada", "Elko", "Abandoned in Elko"],
+      ["US", "Nevada", "Ely", "Ghost Train of Ely"],
+      ["US", "Nevada", "Eureka", "Eureka Mining Town"],
+      ["US", "Nevada", "Goldfield", "Ghost Adventures Documentary Film"],
+      ["US", "Nevada", "Goldfield", "Ghost Adventures Goldfield Hotel"],
+      ["US", "Nevada", "Goldfield", "Goldfield High School"],
+      ["US", "Nevada", "Goldfield", "Goldfield Hotel"],
+      ["US", "Nevada", "Goodsprings", "Pioneer Saloon"],
+      ["US", "Nevada", "Henderson", "Henderson Hell House"],
+      ["US", "Nevada", "Las Vegas", "Binion's Hotel and Casino"],
+      ["US", "Nevada", "Las Vegas", "Curse of Ranch Island"],
+      ["US", "Nevada", "Las Vegas", "Doll of Fire"],
+      ["US", "Nevada", "Las Vegas", "Gates of Hell House"],
+      ["US", "Nevada", "Las Vegas", "Goodwin Home Invasion"],
+      ["US", "Nevada", "Las Vegas", "Halloween Special Museum of Madness"],
+      ["US", "Nevada", "Las Vegas", "Halloween Special The Haunted Museum LIVE"],
+      ["US", "Nevada", "Las Vegas", "House of Brujeria"],
+      ["US", "Nevada", "Las Vegas", "La Palazza Mansion"],
+      ["US", "Nevada", "Las Vegas", "Madame Tussauds Wax Museum"],
+      ["US", "Nevada", "Las Vegas", "Midnight at the Museum"],
+      ["US", "Nevada", "Las Vegas", "Palomino Club"],
+      ["US", "Nevada", "Las Vegas", "Return to the Riviera"],
+      ["US", "Nevada", "Las Vegas", "Sin City Exorcism"],
+      ["US", "Nevada", "Las Vegas", "The Chinatown Poltergeist"],
+      ["US", "Nevada", "Las Vegas", "The Haunted Museum"],
+      ["US", "Nevada", "Las Vegas", "The Riviera Hotel"],
+      ["US", "Nevada", "Lovelock", "Lovelock Triangle"],
+      ["US", "Nevada", "Pahrump", "Petrified in Pahrump"],
+      ["US", "Nevada", "Pioche", "Mount Wilson Ranch"],
+      ["US", "Nevada", "Pioche", "Overland Hotel and Saloon"],
+      ["US", "Nevada", "Pioche", "Pioche Hospital of Hell"],
+      ["US", "Nevada", "Primm", "Abandoned at Whiskey Pete's"],
+      ["US", "Nevada", "Reno", "Rage on the River"],
+      ["US", "Nevada", "Sandy Valley", "Belle Mine"],
+      ["US", "Nevada", "Sutro", "Sutro Ghost Town"],
+      ["US", "Nevada", "Tonopah", "Clown Motel"],
+      ["US", "Nevada", "Tonopah", "Mizpah Hotel"],
+      ["US", "Nevada", "Virginia City", "Beneath the Bonanza"],
+      ["US", "Nevada", "Virginia City", "Ghost Adventures Documentary Film"],
+      ["US", "Nevada", "Virginia City", "Mackay Mansion"],
+      ["US", "Nevada", "Virginia City", "Old Washoe Club and Chollar Mine"],
+      ["US", "Nevada", "Virginia City", "Return to Virginia City"],
+      ["US", "Nevada", "Virginia City", "Territorial Enterprise"],
+      ["US", "Nevada", "Virginia City", "The Washoe Club Final Chapter"],
+      ["US", "Nevada", "Virginia City", "Union Brewery of Death"],
+      ["US", "Nevada", "Virginia City", "Virginia City"],
+
+      // New Jersey
+      ["US", "New Jersey", "Cedar Grove", "Essex County Hospital Center"],
+
+      // New Mexico
+      ["US", "New Mexico", "Albuquerque", "Painted Lady Brothel"],
+      ["US", "New Mexico", "Cimarron", "St. James Hotel"],
+      ["US", "New Mexico", "Deming", "Lewis Flats School"],
+      ["US", "New Mexico", "Gallup", "El Rancho Hotel"],
+      ["US", "New Mexico", "Las Cruces", "Dona Ana County Courthouse"],
+      ["US", "New Mexico", "Las Vegas", "Haunted Harvey House"],
+      ["US", "New Mexico", "Mesilla", "Double Eagle Restaurant"],
+      ["US", "New Mexico", "Ojo Amarillo", "Skinwalker Canyon"],
+      ["US", "New Mexico", "Upper Fruitland", "Upper Fruitland Curse"],
+
+      // New York
+      ["US", "New York", "Bethany", "Rolling Hills Asylum"],
+      ["US", "New York", "Haverstraw", "Letchworth Village"],
+      ["US", "New York", "Manhattan", "Morris Jumel Mansion"],
+      ["US", "New York", "Port Washington", "Execution Rocks Lighthouse"],
+      ["US", "New York", "Smithtown", "Katie's Bar"],
+      ["US", "New York", "Staten Island", "Sailor's Snug Harbor"],
+
+      // North Dakota
+      ["US", "North Dakota", "San Haven", "Dakota's Sanatorium of Death"],
+
+      // Ohio
+      ["US", "Ohio", "Cincinnati", "Sedamsville Rectory"],
+      ["US", "Ohio", "Cleveland", "Franklin Castle"],
+      ["US", "Ohio", "Mansfield", "Ohio State Reformatory"],
+      ["US", "Ohio", "Newark", "Old Licking County Jail"],
+      ["US", "Ohio", "Trinway", "Prospect Place"],
+
+      // Oklahoma
+      ["US", "Oklahoma", "Guthrie", "Samaritan Cult House"],
+      ["US", "Oklahoma", "Guthrie", "Stone Lion Inn"],
+      ["US", "Oklahoma", "Oklahoma City", "Zozo Demon"],
+      ["US", "Oklahoma", "Wynnewood", "Horror at Joe Exotic Zoo"],
 
       // Oregon
-      ["United States","Oregon","Astoria","Fort Stevens"],
-      ["United States","Oregon","Golden","Golden Ghost Town"],
-      ["United States","Oregon","Wolf Creek","Wolf Creek Inn"],
-      ["United States","Oregon","Pendleton","Buried Souls of Pendleton"],
+      ["US", "Oregon", "Astoria", "Graveyard of the Pacific Astoria Underground"],
+      ["US", "Oregon", "Golden", "Golden Ghost Town"],
+      ["US", "Oregon", "Pendleton", "Ghost Adventures Buried Souls of Pendleton"],
+      ["US", "Oregon", "Portland", "Shanghai Tunnels"],
+      ["US", "Oregon", "Turner", "Enchanted Forest"],
+      ["US", "Oregon", "Warrenton", "Graveyard of the Pacific Commander's House"],
+      ["US", "Oregon", "Wolf Creek", "Wolf Creek Inn"],
 
-      ["United States","Pennsylvania","Philadelphia","Eastern State Penitentiary"],
-      ["United States","Tennessee","Memphis","Graceland"],
-      ["United States","Utah","Tooele","Asylum 49"],
-      ["United States","Washington","Seattle","Kell's Irish Pub"],
-      ["United States","West Virginia","Moundsville","West Virginia State Penitentiary"],
-      ["United States","Wyoming","Rawlins","Wyoming Frontier Prison"],
+      // Pennsylvania
+      ["US", "Pennsylvania", "Gettysburg", "Gettysburg Battlefield"],
+      ["US", "Pennsylvania", "New Castle", "Hill View Manor"],
+      ["US", "Pennsylvania", "Philadelphia", "Eastern State Penitentiary"],
+      ["US", "Pennsylvania", "Spring City", "Pennhurst State School"],
 
-      // Recap buckets
-      ["Various Locations","—","Various","Armies of Darkness (recap)"],
-      ["Various Locations","—","Various","First Timers (recap)"],
-      ["Various Locations","—","Various","Killer Nightlife (recap)"],
-      ["Various Locations","—","Various","Wickedest Women / Houses of Terror / Bloodiest Battlefields (recap)"],
+      // Rhode Island
+      ["US", "Rhode Island", "Harrisville", "Halloween Special Curse of the Harrisville Farmhouse"],
+
+      // South Carolina
+      ["US", "South Carolina", "Charleston", "Old Charleston Jail"],
+
+      // South Dakota
+      ["US", "South Dakota", "Deadwood", "Halloween Special Deadwood City of Ghosts"],
+
+      // Tennessee
+      ["US", "Tennessee", "Adams", "Bell Witch Cave"],
+      ["US", "Tennessee", "Fayetteville", "Old Lincoln County Hospital"],
+      ["US", "Tennessee", "Haletown", "Hales Bar Marina and Dam"],
+      ["US", "Tennessee", "Hurricane Mills", "Loretta Lynn's Plantation House"],
+
+      // Texas
+      ["US", "Texas", "Amarillo", "Panic in Amarillo"],
+      ["US", "Texas", "Denton", "Halloween Special Route 666"],
+      ["US", "Texas", "El Paso", "Halloween Special Route 666"],
+      ["US", "Texas", "Huntsville", "Texas Prison Museum"],
+      ["US", "Texas", "Mineral Wells", "Crazy Town"],
+      ["US", "Texas", "San Antonio", "Black Swan Inn"],
+      ["US", "Texas", "San Antonio", "Mission Park train tracks"],
+      ["US", "Texas", "Seguin", "Texas Horror Hotel"],
+      ["US", "Texas", "Sugar Land", "Central Unit Prison"],
+      ["US", "Texas", "Yorktown", "Yorktown Hospital"],
+
+      // Utah
+      ["US", "Utah", "Bountiful", "Serial Killer Spirits Ted Bundy Ritual House"],
+      ["US", "Utah", "Eureka", "Tintic Mining District"],
+      ["US", "Utah", "Great Salt Lake", "Ghost Island"],
+      ["US", "Utah", "Great Salt Lake", "The Great Saltair Curse"],
+      ["US", "Utah", "Helper", "Carbon County Chaos"],
+      ["US", "Utah", "Kaysville", "Kay's Hollow"],
+      ["US", "Utah", "Logan Canyon", "St. Ann's Retreat"],
+      ["US", "Utah", "Magna", "Witches in Magna"],
+      ["US", "Utah", "Millville", "Mayhem in Millville"],
+      ["US", "Utah", "Nephi", "Whitmore Mansion"],
+      ["US", "Utah", "Ogden", "Ogden Possession"],
+      ["US", "Utah", "Ogden", "Terror on 25th Street"],
+      ["US", "Utah", "Salt Lake City", "Fear Factory"],
+      ["US", "Utah", "Salt Lake City", "Industrial District of the Damned"],
+      ["US", "Utah", "Santaquin", "Leslie's Family Tree"],
+      ["US", "Utah", "Stansbury Park", "Benson Grist Mill"],
+      ["US", "Utah", "Tooele", "Asylum 49"],
+      ["US", "Utah", "Tooele", "Tooele Hospital"],
+      ["US", "Utah", "Torrey", "Ghost Adventures Skinwalker Invasion"],
+      ["US", "Utah", "West Haven", "Haunted Hollow Forest"],
+
+      // Washington
+      ["US", "Washington", "Bothell", "Demons in Seattle"],
+      ["US", "Washington", "Colfax", "St. Ignatius Hospital"],
+      ["US", "Washington", "Ilwaco", "Graveyard of the Pacific Cape Disappointment"],
+      ["US", "Washington", "Port Townsend", "Manresa Castle"],
+      ["US", "Washington", "Seattle", "Kell's Irish Pub Restaurant"],
+
+      // West Virginia
+      ["US", "West Virginia", "Moundsville", "Moundsville Penitentiary"],
+      ["US", "West Virginia", "Weston", "Ghost Adventures Live Trans-Allegheny Lunatic Asylum"],
+      ["US", "West Virginia", "Weston", "Trans-Allegheny Lunatic Asylum"],
+
+      // Wyoming
+      ["US", "Wyoming", "Casper", "Ghost Adventures Mountain of Madness"],
+      ["US", "Wyoming", "Rawlins", "Wyoming Frontier Prison"],
     ];
 
     // =========================
@@ -709,6 +1073,10 @@
       fillStates("");
       assert(els.country.options.length >= 1, "Country dropdown did not populate.");
       assert(els.state.options.length >= 1, "State dropdown did not populate.");
+
+      // Known-location checks (regression tests)
+      assert(ALL.some(r => r.city === "Wolf Creek" && /wolf creek inn/i.test(r.site)), "Expected Wolf Creek Inn to be present.");
+      assert(ALL.some(r => r.city === "Keeler" && /cerro gordo/i.test(r.site)), "Expected Cerro Gordo to be present.");
 
       if (problems.length) {
         console.error("Self-tests failed:", problems);
