@@ -4,6 +4,6 @@ Inspired by [Useful patterns for building HTML tools](https://simonwillison.net/
 I too have taken up the gauntlet of HTML + Javascript tools, via LLMs and otherwise to suit my individual work and tastes.
 
 ## Ghosts
-- [Ghost Adventure Location Avoider!](https://github.com/michaelspinks/tools/blob/main/ghost-adventures-location-avoider.docs.md)
+- [Ghost Adventure Location Avoider!](ghost-adventures-location-avoider.html)
 
   
