@@ -3,202 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twilight Print Preview | GFM to PDF</title>
+    <title>Forge PDF | Technical Markdown</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <style>
-        /* Twilight Theme Customizations */
-        body { background-color: #1e293b; color: #f8fafc; }
+        body { background-color: #1e293b; color: #f8fafc; font-family: ui-sans-serif, system-ui, sans-serif; }
         
-        /* Print Styles */
         @media print {
             body * { visibility: hidden; }
             #print-area, #print-area * { visibility: visible; }
             #print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: white !important;
-                color: black !important;
-                padding: 0 !important;
+                position: absolute; left: 0; top: 0; width: 100% !important;
+                padding: 1.5cm !important; background: white !important; color: black !important;
             }
             .page-break { page-break-before: always; }
-            pre { white-space: pre-wrap; word-wrap: break-word; }
+            pre, blockquote, table { page-break-inside: avoid; }
         }
 
-        /* Preview Area Typography (GitHub-ish but Professional) */
-        .prose-preview h1 { border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3em; font-size: 2em; font-weight: 700; margin-top: 24px; margin-bottom: 16px; }
-        .prose-preview h2 { border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3em; font-size: 1.5em; font-weight: 600; margin-top: 24px; margin-bottom: 16px; }
-        .prose-preview p { margin-top: 0; margin-bottom: 16px; line-height: 1.6; }
-        .prose-preview code { background-color: #f1f5f9; padding: 0.2em 0.4em; border-radius: 6px; font-family: monospace; font-size: 85%; }
-        .prose-preview pre { background-color: #f8fafc; padding: 16px; border-radius: 8px; overflow: auto; margin-bottom: 16px; }
-        .prose-preview blockquote { border-left: 4px solid #cbd5e1; padding-left: 16px; color: #64748b; font-style: italic; }
-        .prose-preview table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-        .prose-preview th, .prose-preview td { border: 1px solid #e2e8f0; padding: 6px 13px; }
-        .prose-preview tr:nth-child(even) { background-color: #f8fafc; }
+        /* Technical Print Typography */
+        .prose-preview { line-height: 1.6; color: #1e293b; }
+        .prose-preview h1 { border-bottom: 3px solid #0f172a; padding-bottom: 0.2em; font-size: 2.5em; font-weight: 800; margin-top: 0; color: #0f172a; letter-spacing: -0.02em; }
+        .prose-preview h2 { border-bottom: 1px solid #94a3b8; padding-bottom: 0.2em; font-size: 1.75em; font-weight: 700; margin-top: 1.5em; color: #334155; }
+        
+        /* Rigid Table Control */
+        .prose-preview table { 
+            width: 100%; border-collapse: collapse; margin: 24px 0; 
+            table-layout: fixed; /* Hard constraint to container width */
+        }
+        .prose-preview th, .prose-preview td { 
+            border: 1px solid #cbd5e1; padding: 10px; text-align: left; 
+            word-wrap: break-word; overflow-wrap: break-word; font-size: 0.9em;
+        }
+        .prose-preview th { background-color: #f1f5f9; font-weight: 700; color: #0f172a; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #818cf8; }
+        .prose-preview code { background: #f1f5f9; padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; font-size: 0.85em; color: #be185d; }
+        .prose-preview pre { background: #1e293b; color: #f8fafc; padding: 1.5em; border-radius: 6px; overflow-x: auto; margin: 1.5em 0; }
+        .prose-preview blockquote { border-left: 5px solid #6366f1; padding: 0.5em 1.5em; color: #475569; background: #f8fafc; font-style: italic; margin: 1.5em 0; }
     </style>
 </head>
-<body class="bg-slate-800 text-slate-50 min-h-screen font-sans">
+<body class="h-screen flex flex-col">
 
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 border-b border-slate-700 gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-indigo-400">Twilight Print Preview</h1>
-            <p class="text-slate-400 text-sm">Convert GFM to professional PDF technical reports.</p>
+    <header class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800 shadow-xl z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-indigo-500 rounded flex items-center justify-center font-black text-slate-900">F</div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">FORGE <span class="text-indigo-400">PDF</span></h1>
+                <p class="text-slate-500 text-[10px] uppercase font-bold tracking-tighter">Markdown to PDF Utility</p>
+            </div>
         </div>
-        <div class="flex gap-3">
-            <button onclick="clearContent()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 transition text-sm rounded-md border border-slate-600">Clear</button>
-            <button onclick="copyHTML()" id="btn-copy" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 transition text-sm rounded-md border border-slate-600">Copy HTML</button>
-            <button onclick="window.print()" class="px-4 py-2 bg-indigo-400 hover:bg-indigo-500 text-slate-900 font-bold text-sm rounded-md transition">Print to PDF</button>
+        <div class="flex gap-4 items-center">
+            <button onclick="clearContent()" class="text-slate-400 hover:text-red-400 transition text-xs font-bold uppercase">Reset</button>
+            <button onclick="copyHTML()" id="btn-copy" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold transition border border-slate-600 text-slate-200">COPY HTML</button>
+            <button onclick="window.print()" class="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded text-xs transition shadow-lg uppercase tracking-widest">Print to PDF</button>
         </div>
     </header>
 
-    <main class="p-6 space-y-6">
-        <div class="bg-slate-700 rounded-lg p-4 flex flex-wrap gap-6 items-center border border-slate-600">
-            <div class="flex flex-col">
-                <label class="text-xs uppercase font-bold text-slate-400 mb-1">Report Title</label>
-                <input type="text" id="report-title" oninput="updatePreview()" placeholder="Internal Documentation..." 
-                       class="bg-slate-800 border-none ring-1 ring-slate-600 focus:ring-2 focus:ring-indigo-500 rounded px-3 py-1 text-sm outline-none">
+    <main class="flex-grow p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
+        
+        <div class="flex flex-col gap-4 overflow-hidden">
+            <div class="bg-slate-700 rounded-lg border border-slate-600 flex flex-grow overflow-hidden shadow-inner">
+                <textarea id="editor" oninput="handleUpdate()" 
+                    class="flex-grow bg-slate-800/50 p-6 font-mono text-sm text-slate-300 outline-none focus:bg-slate-800 transition-colors resize-none"
+                    placeholder="# Project Draft..."></textarea>
             </div>
-            <div class="flex flex-col">
-                <label class="text-xs uppercase font-bold text-slate-400 mb-1">Font Size</label>
-                <select id="font-size" onchange="updatePreview()" class="bg-slate-800 border-none ring-1 ring-slate-600 focus:ring-2 focus:ring-indigo-500 rounded px-3 py-1 text-sm">
-                    <option value="text-sm">Small</option>
-                    <option value="text-base" selected>Normal</option>
-                    <option value="text-lg">Large</option>
-                </select>
-            </div>
-            <div class="ml-auto text-right">
-                <span id="char-count" class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Chars: 0 | Lines: 0</span>
+            <div class="flex justify-between items-center px-1">
+                <div id="stats" class="text-[10px] font-mono text-slate-500 uppercase">Chars: 0 | Lines: 1</div>
+                <div class="text-[10px] font-mono text-slate-500 uppercase">Input: GFM v2.0</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <div class="space-y-6">
-                <div class="bg-slate-700 rounded-lg overflow-hidden border border-slate-600 flex flex-col h-[400px]">
-                    <div class="bg-slate-600 px-4 py-2 text-xs font-bold uppercase tracking-wider flex justify-between">
-                        Raw Markdown Input
-                    </div>
-                    <textarea id="markdown-input" oninput="handleInput()" 
-                        class="w-full h-full bg-slate-800 p-4 font-mono text-sm text-slate-300 resize-none outline-none focus:ring-1 focus:ring-indigo-500"
-                        placeholder="# Your Markdown Here..."></textarea>
-                </div>
-
-                <div class="bg-slate-700 rounded-lg overflow-hidden border border-slate-600 flex flex-col h-[250px]">
-                    <div class="bg-slate-600 px-4 py-2 text-xs font-bold uppercase tracking-wider">
-                        Generated HTML (Read Only)
-                    </div>
-                    <div id="html-output" class="bg-slate-900 p-4 font-mono text-xs text-indigo-300 overflow-auto h-full">
-                        </div>
-                </div>
-            </div>
-
-            <div class="bg-slate-700 rounded-lg overflow-hidden border border-slate-600 flex flex-col min-h-[670px]">
-                <div class="bg-slate-600 px-4 py-2 text-xs font-bold uppercase tracking-wider">
-                    Live Visual Preview (A4 Aspect)
-                </div>
-                <div class="bg-slate-500 p-8 overflow-auto flex-grow flex justify-center">
-                    <div id="print-area" class="bg-white text-slate-900 p-12 w-full max-w-[210mm] min-h-[297mm] shadow-2xl prose-preview">
-                        <header id="preview-header" class="mb-8 border-b-2 border-slate-900 pb-2 hidden">
-                            <h4 id="preview-title-text" class="text-sm font-bold uppercase tracking-tighter"></h4>
-                        </header>
-                        <div id="render-target"></div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <script>
-        const inputArea = document.getElementById('markdown-input');
-        const htmlArea = document.getElementById('html-output');
-        const renderTarget = document.getElementById('render-target');
-        const charCounter = document.getElementById('char-count');
-        const reportTitleInput = document.getElementById('report-title');
-        const previewHeader = document.getElementById('preview-header');
-        const previewTitleText = document.getElementById('preview-title-text');
-        const fontSizeSelect = document.getElementById('font-size');
-
-        const STORAGE_KEY = 'twilight_markdown_content';
-
-        // Initialize marked with GFM options
-        marked.setOptions({
-            gfm: true,
-            breaks: true,
-            headerIds: true,
-            mangle: false
-        });
-
-        // Load persisted data
-        window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                inputArea.value = saved;
-                handleInput();
-            }
-        });
-
-        function handleInput() {
-            const rawValue = inputArea.value;
-            localStorage.setItem(STORAGE_KEY, rawValue);
-            updatePreview();
-        }
-
-        function updatePreview() {
-            const markdown = inputArea.value;
-            const html = marked.parse(markdown);
-
-            // Update Counts
-            const lines = markdown.split('\n').length;
-            charCounter.innerText = `Chars: ${markdown.length} | Lines: ${lines}`;
-
-            // Update Generated HTML area
-            htmlArea.innerText = html;
-
-            // Update Visual Preview
-            renderTarget.innerHTML = html;
-            renderTarget.className = `prose-preview ${fontSizeSelect.value}`;
-
-            // Update Title Header
-            if (reportTitleInput.value.trim() !== "") {
-                previewHeader.classList.remove('hidden');
-                previewTitleText.innerText = reportTitleInput.value;
-            } else {
-                previewHeader.classList.add('hidden');
-            }
-        }
-
-        function clearContent() {
-            if (confirm("Clear all content?")) {
-                inputArea.value = "";
-                handleInput();
-            }
-        }
-
-        async function copyHTML() {
-            const btn = document.getElementById('btn-copy');
-            try {
-                await navigator.clipboard.writeText(htmlArea.innerText);
-                const originalText = btn.innerText;
-                btn.innerText = "✓ Copied";
-                btn.classList.replace('bg-slate-700', 'bg-green-600');
-                
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.classList.replace('bg-green-600', 'bg-slate-700');
-                }, 2000);
-            } catch (err) {
-                console.error('Failed to copy: ', err);
-            }
-        }
-    </script>
-</body>
-</html>
+        <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex flex-col shadow-2xl">
+            <div class="flex-grow overflow-auto bg-slate-800 p-8 flex justify-center">
+                <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm]
