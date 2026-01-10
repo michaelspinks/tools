@@ -10,66 +10,71 @@
         body { background-color: #1e293b; color: #f8fafc; }
         
         @media print {
-            @page { size: A4; margin: 2cm; }
+            @page { size: A4; margin: 1.5cm; }
             body { background: white !important; color: black !important; }
             .no-print { display: none !important; }
             #print-area {
                 position: absolute; left: 0; top: 0; width: 100% !important;
                 padding: 0 !important; box-shadow: none !important;
             }
-            /* Forces Acrobat to show backgrounds and colors */
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            /* Explicitly force Adobe to render colors and backgrounds */
+            * { 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+                color-adjust: exact !important;
+            }
         }
 
-        /* Acrobat-Optimized Typography */
-        .prose-preview { line-height: 1.6; color: #1e293b; font-family: 'Inter', system-ui, sans-serif; }
-        .prose-preview h1 { border-bottom: 3px solid #000; padding-bottom: 0.2em; font-size: 2.5em; font-weight: 800; margin-top: 0; color: #000; }
-        .prose-preview h2 { border-bottom: 1.5px solid #666; padding-bottom: 0.2em; font-size: 1.75em; font-weight: 700; margin-top: 1.5em; color: #222; }
+        /* Acrobat-Safe Typography */
+        .prose-preview { line-height: 1.5; color: #000; font-family: 'Arial', sans-serif; }
+        .prose-preview h1 { border-bottom: 2px solid #000; padding-bottom: 5px; font-size: 28pt; font-weight: bold; margin-top: 0; margin-bottom: 15px; }
+        .prose-preview h2 { border-bottom: 1px solid #333; padding-bottom: 5px; font-size: 20pt; font-weight: bold; margin-top: 25px; margin-bottom: 10px; }
+        .prose-preview p { margin-bottom: 12pt; font-size: 11pt; }
         
-        /* High-Contrast Tables for PDF */
+        /* The Table Grid Fix - Explicit Black Borders */
         .prose-preview table { 
-            width: 100%; border-collapse: collapse; margin: 24px 0; 
+            width: 100%; border-collapse: collapse; margin: 20px 0; 
             table-layout: fixed; border: 1.5px solid #000; 
         }
         .prose-preview th, .prose-preview td { 
-            border: 1px solid #000; padding: 10px; text-align: left; 
-            word-wrap: break-word; font-size: 0.95em;
+            border: 1px solid #000 !important; /* Force solid black for grid lines */
+            padding: 8px; text-align: left; word-wrap: break-word; font-size: 10pt;
         }
-        .prose-preview th { background-color: #f1f5f9 !important; font-weight: 700; }
+        .prose-preview th { background-color: #E5E7EB !important; font-weight: bold; }
 
-        /* Code Blocks */
+        /* Code Block Fix */
         .prose-preview pre { 
             background: #1e293b !important; color: #f8fafc !important; 
-            padding: 1.5em; border-radius: 4px; margin: 1.5em 0;
-            white-space: pre-wrap; font-size: 0.85em; border: 1px solid #000;
+            padding: 15px; border-radius: 4px; margin: 15px 0;
+            white-space: pre-wrap; font-size: 9pt; border: 1px solid #000;
         }
-        .prose-preview code { font-family: monospace; }
-        .prose-preview blockquote { border-left: 5px solid #6366f1; padding: 10px 20px; background: #f8fafc !important; margin: 1.5em 0; }
+        .prose-preview code { font-family: 'Courier New', monospace; }
+        .prose-preview blockquote { border-left: 5px solid #4F46E5; padding: 5px 15px; background: #F3F4F6 !important; margin: 15px 0; font-style: italic; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
-    <header class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800 z-10 no-print">
+    <header class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800 z-10 no-print">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-black text-slate-900 text-xl italic">M</div>
+            <div class="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-black text-slate-900 text-xl italic shadow-lg">M</div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white uppercase">MarkForge</h1>
-                <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">Acrobat-Ready Engine</p>
+                <p class="text-slate-500 text-[9px] uppercase font-bold tracking-widest">Acrobat Compatibility Mode</p>
             </div>
         </div>
         <div class="flex gap-4">
             <button onclick="copyHTML()" id="copy-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold border border-slate-600">Copy HTML</button>
-            <button onclick="window.print()" class="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded text-xs transition uppercase">Generate PDF</button>
+            <button onclick="window.print()" class="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded text-xs transition uppercase shadow-md">Export PDF</button>
         </div>
     </header>
 
     <main class="flex-grow p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden no-print">
         <div class="flex flex-col gap-4 h-full">
-            <textarea id="markdown-editor" class="flex-grow bg-slate-800 p-6 font-mono text-sm text-slate-300 outline-none rounded-lg border border-slate-700 resize-none"></textarea>
+            <textarea id="markdown-editor" class="flex-grow bg-slate-800 p-6 font-mono text-sm text-slate-300 outline-none rounded-lg border border-slate-700 resize-none shadow-inner" placeholder="Enter Markdown..."></textarea>
         </div>
-        <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex flex-col">
-            <div class="flex-grow overflow-auto p-8 flex justify-center bg-slate-800/50">
-                <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm] p-16 prose-preview"></div>
+        <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex flex-col shadow-2xl">
+            <div class="flex-grow overflow-auto p-12 flex justify-center bg-slate-800/40">
+                <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm] p-16 prose-preview border border-slate-300"></div>
             </div>
         </div>
     </main>
@@ -80,19 +85,21 @@
 
         function update() {
             const content = editor.value;
-            localStorage.setItem('markforge_vfinal', content);
+            localStorage.setItem('markforge_acrobat_fix', content);
             preview.innerHTML = marked.parse(content);
         }
 
         async function copyHTML() {
             await navigator.clipboard.writeText(preview.innerHTML);
-            document.getElementById('copy-btn').textContent = "✓ Copied";
-            setTimeout(() => document.getElementById('copy-btn').textContent = "Copy HTML", 1500);
+            const btn = document.getElementById('copy-btn');
+            btn.textContent = "✓ Saved";
+            setTimeout(() => btn.textContent = "Copy HTML", 1500);
         }
 
         editor.addEventListener('input', update);
         window.onload = () => {
-            editor.value = localStorage.getItem('markforge_vfinal') || "# Introduction\n\n| Component | Status |\n| :--- | :--- |\n| PDF Engine | Fixed |";
+            const saved = localStorage.getItem('markforge_acrobat_fix');
+            editor.value = saved || "# Report Title\n\n| Item | Value |\n| :--- | :--- |\n| PDF | Fixed |";
             update();
         };
     </script>
