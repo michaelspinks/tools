@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarkForge | Acrobat-Safe PDF</title>
+    <title>MarkForge | PDF Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <style>
@@ -17,38 +17,32 @@
                 position: absolute; left: 0; top: 0; width: 100% !important;
                 padding: 0 !important; box-shadow: none !important; border: none !important;
             }
-            /* Explicitly force Adobe to render all colors and backgrounds */
-            * { 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important; 
-                color-adjust: exact !important;
-            }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
 
-        /* Acrobat-Optimized Typography */
+        /* Acrobat-Safe Typography Logic */
         .prose-preview { line-height: 1.5; color: #000; }
         .prose-preview h1 { border-bottom: 2pt solid #000; padding-bottom: 4pt; font-size: 24pt; font-weight: 800; margin-top: 0; color: #000; }
-        .prose-preview h2 { border-bottom: 1pt solid #444; padding-bottom: 4pt; font-size: 18pt; font-weight: 700; margin-top: 20pt; color: #222; }
+        .prose-preview h2 { border-bottom: 1pt solid #000; padding-bottom: 4pt; font-size: 18pt; font-weight: 700; margin-top: 20pt; color: #000; }
         
-        /* The Absolute Table Grid Fix */
+        /* High-Contrast Table Grid (Fixes missing lines in Acrobat) */
         .prose-preview table { 
             width: 100%; border-collapse: collapse; margin: 20pt 0; 
             table-layout: fixed; border: 1.5pt solid #000 !important; 
         }
         .prose-preview th, .prose-preview td { 
-            border: 1pt solid #000 !important; /* Forces solid black grid lines in Acrobat */
+            border: 1pt solid #000 !important; /* Explicit black borders */
             padding: 8pt; text-align: left; word-wrap: break-word; font-size: 10pt;
         }
-        .prose-preview th { background-color: #E5E7EB !important; font-weight: bold; }
+        .prose-preview th { background-color: #f3f4f6 !important; font-weight: bold; }
 
-        /* Solid Code Blocks */
+        /* Fixed Code Blocks and Blockquotes */
         .prose-preview pre { 
             background: #1e293b !important; color: #f8fafc !important; 
             padding: 12pt; border-radius: 4pt; margin: 15pt 0;
             white-space: pre-wrap; font-size: 9pt; border: 1pt solid #000;
         }
-        .prose-preview code { font-family: 'Courier New', monospace; }
-        .prose-preview blockquote { border-left: 4pt solid #4F46E5; padding: 5pt 12pt; background: #F3F4F6 !important; margin: 15pt 0; font-style: italic; }
+        .prose-preview blockquote { border-left: 4pt solid #4f46e5; padding: 5pt 12pt; background: #f9fafb !important; margin: 15pt 0; font-style: italic; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -57,12 +51,12 @@
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-black text-slate-900 text-xl italic shadow-md">M</div>
             <div>
-                <h1 class="text-xl font-bold tracking-tight text-white uppercase">MarkForge</h1>
+                <h1 class="text-xl font-bold tracking-tight text-white uppercase italic">MarkForge</h1>
                 <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">High-Fidelity PDF Engine</p>
             </div>
         </div>
         <div class="flex gap-4">
-            <button onclick="copyHTML()" id="copy-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold border border-slate-600 text-white">Copy HTML</button>
+            <button onclick="copyHTML()" id="copy-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold border border-slate-600 text-white transition">Copy HTML</button>
             <button onclick="window.print()" class="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded text-xs transition uppercase shadow-lg">Export to PDF</button>
         </div>
     </header>
@@ -75,7 +69,8 @@
 
         <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex flex-col">
             <div class="flex-grow overflow-auto p-12 flex justify-center bg-slate-800/40">
-                <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm] p-16 prose-preview border border-slate-300"></div>
+                <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm] p-16 prose-preview border border-slate-300">
+                    </div>
             </div>
         </div>
     </main>
@@ -86,23 +81,41 @@
         const stats = document.getElementById('stats');
 
         function update() {
-            const content = editor.value;
-            localStorage.setItem('markforge_acrobat_final', content);
-            preview.innerHTML = marked.parse(content);
-            stats.textContent = `Chars: ${content.length} | Lines: ${content.split('\n').length}`;
+            try {
+                const content = editor.value;
+                localStorage.setItem('markforge_acrobat_final', content);
+                
+                // Safety check for marked.js
+                if (typeof marked !== 'undefined') {
+                    preview.innerHTML = marked.parse(content);
+                } else {
+                    preview.innerHTML = "<p style='color:red'>Error: Markdown parser failed to load. Please check your internet connection.</p>";
+                }
+
+                stats.textContent = `Chars: ${content.length} | Lines: ${content.split('\n').length}`;
+            } catch (e) {
+                console.error("Rendering Error:", e);
+            }
         }
 
         async function copyHTML() {
-            await navigator.clipboard.writeText(preview.innerHTML);
-            const btn = document.getElementById('copy-btn');
-            btn.textContent = "✓ Copied";
-            setTimeout(() => btn.textContent = "Copy HTML", 1500);
+            try {
+                await navigator.clipboard.writeText(preview.innerHTML);
+                const btn = document.getElementById('copy-btn');
+                btn.textContent = "✓ Copied";
+                setTimeout(() => btn.textContent = "Copy HTML", 1500);
+            } catch (err) {
+                alert("Failed to copy HTML.");
+            }
         }
 
+        // Direct event listener for immediate rendering
         editor.addEventListener('input', update);
+
+        // Load saved draft and trigger initial render
         window.onload = () => {
             const saved = localStorage.getItem('markforge_acrobat_final');
-            editor.value = saved || "# Project Review\n\n| Component | Status |\n| :--- | :--- |\n| PDF Grid | Fixed |";
+            editor.value = saved || "# Project Review\n\n| Component | Status |\n| :--- | :--- |\n| Preview | Active |";
             update();
         };
     </script>
