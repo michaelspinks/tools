@@ -151,7 +151,7 @@
           preview.innerHTML = "<p style='color:red'>Error: Markdown parser failed to load. Please check your internet connection.</p>";
         }
 
-        stats.textContent = `Chars: ${content.length} | Lines: ${content.split('\n').length}`;
+        stats.textContent = `Chars: ${content.length} | Lines: ${content.split('\\n').length}`;
       } catch (e) {
         console.error("Rendering Error:", e);
       }
@@ -169,96 +169,74 @@
     }
 
     function exportPDF() {
-      const html = preview.innerHTML;
+      try {
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        iframe.style.opacity = '0';
+        iframe.setAttribute('aria-hidden', 'true');
 
-      const printWin = window.open('', '_blank', 'noopener,noreferrer,width=900,height=700');
-      if (!printWin) {
-        alert('Popup blocked. Allow popups to export PDF.');
-        return;
+        document.body.appendChild(iframe);
+
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>Export</title>
+          <style>
+            @page { size: A4; margin: 2cm; }
+            html, body { margin: 0; padding: 0; }
+            body { background: #fff; color: #000; font-family: Arial, sans-serif; }
+            .prose-preview { line-height: 1.5; color: #000; }
+
+            .prose-preview h1 { border-bottom: 2pt solid #000; padding-bottom: 4pt; font-size: 24pt; font-weight: 800; margin: 0 0 12pt; color: #000; }
+            .prose-preview h2 { border-bottom: 1pt solid #000; padding-bottom: 4pt; font-size: 18pt; font-weight: 700; margin: 20pt 0 10pt; color: #000; }
+
+            .prose-preview table { width: 100%; border-collapse: collapse; margin: 20pt 0; table-layout: fixed; border: 1.5pt solid #000; }
+            .prose-preview th, .prose-preview td { border: 1pt solid #000; padding: 8pt; text-align: left; word-wrap: break-word; font-size: 10pt; }
+            .prose-preview th { background-color: #f3f4f6; font-weight: bold; }
+
+            .prose-preview pre { background: #1e293b; color: #f8fafc; padding: 12pt; border-radius: 4pt; margin: 15pt 0; white-space: pre-wrap; font-size: 9pt; border: 1pt solid #000; }
+            .prose-preview blockquote { border-left: 4pt solid #4f46e5; padding: 5pt 12pt; background: #f9fafb; margin: 15pt 0; font-style: italic; }
+
+            h1, h2, h3 { break-after: avoid-page; }
+            pre, blockquote, table { break-inside: avoid; }
+            tr, td, th { break-inside: avoid; }
+
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          </style>
+        </head><body></body></html>`);
+        doc.close();
+
+        const container = doc.createElement('div');
+        container.className = 'prose-preview';
+        container.innerHTML = preview.innerHTML;
+        doc.body.appendChild(container);
+
+        setTimeout(() => {
+          const win = iframe.contentWindow;
+          win.focus();
+          win.print();
+
+          setTimeout(() => {
+            iframe.remove();
+          }, 500);
+        }, 50);
+
+      } catch (e) {
+        console.error("Export Error:", e);
+        alert("Export failed. Check the console for details.");
       }
-
-      const styles = `
-        <style>
-          @page { size: A4; margin: 2cm; }
-          html, body { margin: 0; padding: 0; }
-          body { background: #fff; color: #000; font-family: Arial, sans-serif; }
-
-          .prose-preview { line-height: 1.5; color: #000; }
-          .prose-preview h1 { border-bottom: 2pt solid #000; padding-bottom: 4pt; font-size: 24pt; font-weight: 800; margin: 0 0 12pt; color: #000; }
-          .prose-preview h2 { border-bottom: 1pt solid #000; padding-bottom: 4pt; font-size: 18pt; font-weight: 700; margin: 20pt 0 10pt; color: #000; }
-
-          .prose-preview table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20pt 0;
-            table-layout: fixed;
-            border: 1.5pt solid #000;
-          }
-          .prose-preview th, .prose-preview td {
-            border: 1pt solid #000;
-            padding: 8pt;
-            text-align: left;
-            word-wrap: break-word;
-            font-size: 10pt;
-          }
-          .prose-preview th { background-color: #f3f4f6; font-weight: bold; }
-
-          .prose-preview pre {
-            background: #1e293b;
-            color: #f8fafc;
-            padding: 12pt;
-            border-radius: 4pt;
-            margin: 15pt 0;
-            white-space: pre-wrap;
-            font-size: 9pt;
-            border: 1pt solid #000;
-          }
-          .prose-preview blockquote {
-            border-left: 4pt solid #4f46e5;
-            padding: 5pt 12pt;
-            background: #f9fafb;
-            margin: 15pt 0;
-            font-style: italic;
-          }
-
-          h1, h2, h3 { break-after: avoid-page; }
-          pre, blockquote, table { break-inside: avoid; }
-          tr, td, th { break-inside: avoid; }
-
-          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        </style>
-      `;
-
-      printWin.document.open();
-      printWin.document.write(`
-        <!doctype html>
-        <html>
-          <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>Export</title>
-            ${styles}
-          </head>
-          <body>
-            <div class="prose-preview">${html}</div>
-            <script>
-              window.onload = () => {
-                window.focus();
-                window.print();
-              };
-              window.onafterprint = () => window.close();
-            <\/script>
-          </body>
-        </html>
-      `);
-      printWin.document.close();
     }
 
     editor.addEventListener('input', update);
 
     window.onload = () => {
       const saved = localStorage.getItem('markforge_acrobat_final');
-      editor.value = saved || "# Project Review\n\n| Component | Status |\n| :--- | :--- |\n| Preview | Active |";
+      editor.value = saved || "# Project Review\\n\\n| Component | Status |\\n| :--- | :--- |\\n| Preview | Active |";
       update();
     };
   </script>
