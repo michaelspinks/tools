@@ -9,10 +9,32 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 
   <style>
+    :root{
+      --page-width: 210mm;
+      --page-height: 297mm;
+      --page-margin: 2cm;
+      --page-guide: rgba(0,0,0,0.10);
+    }
+
     body { background-color: #1e293b; color: #f8fafc; font-family: 'Inter', sans-serif; }
 
+    /* Screen preview page guides */
+    #print-area{
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent calc(var(--page-height) - 1px),
+          var(--page-guide) calc(var(--page-height) - 1px),
+          var(--page-guide) var(--page-height)
+        );
+      background-repeat: repeat-y;
+      background-size: 100% var(--page-height);
+      background-color: #fff;
+    }
+
     @media print {
-      @page { size: A4; margin: 2cm; }
+      @page { size: A4; margin: var(--page-margin); }
 
       html, body {
         height: auto !important;
@@ -47,6 +69,8 @@
       }
 
       #print-area {
+        background: #fff !important;
+        background-image: none !important;
         width: 100% !important;
         max-width: none !important;
         min-height: auto !important;
@@ -57,17 +81,41 @@
         box-shadow: none !important;
       }
 
-      h1, h2, h3 { break-after: avoid-page; }
-      pre, blockquote, table { break-inside: avoid; }
-      tr, td, th { break-inside: avoid; }
+      /* Forced page breaks */
+      .page-break {
+        display: block;
+        height: 0;
+        margin: 0;
+        border: 0;
+        break-before: page;
+        page-break-before: always; /* legacy */
+      }
+
+      /* Pagination heuristics */
+      h1, h2, h3 { break-after: avoid-page; page-break-after: avoid; }
+      p { orphans: 3; widows: 3; }
+
+      /* Tables: allow splitting, repeat header */
+      table { break-inside: auto; page-break-inside: auto; }
+      thead { display: table-header-group; }
+      tfoot { display: table-footer-group; }
+      tr { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Pre can be long, allow split */
+      pre { break-inside: auto; page-break-inside: auto; }
+
+      /* Quote blocks generally keep together */
+      blockquote { break-inside: avoid; page-break-inside: avoid; }
 
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
 
+    /* Typography */
     .prose-preview { line-height: 1.5; color: #000; }
     .prose-preview h1 { border-bottom: 2pt solid #000; padding-bottom: 4pt; font-size: 24pt; font-weight: 800; margin-top: 0; color: #000; }
     .prose-preview h2 { border-bottom: 1pt solid #000; padding-bottom: 4pt; font-size: 18pt; font-weight: 700; margin-top: 20pt; color: #000; }
 
+    /* Tables */
     .prose-preview table {
       width: 100%;
       border-collapse: collapse;
@@ -81,9 +129,11 @@
       text-align: left;
       word-wrap: break-word;
       font-size: 10pt;
+      vertical-align: top;
     }
     .prose-preview th { background-color: #f3f4f6 !important; font-weight: bold; }
 
+    /* Code + quotes */
     .prose-preview pre {
       background: #1e293b !important;
       color: #f8fafc !important;
@@ -94,12 +144,20 @@
       font-size: 9pt;
       border: 1pt solid #000;
     }
+    .prose-preview code { word-break: break-word; }
     .prose-preview blockquote {
       border-left: 4pt solid #4f46e5;
       padding: 5pt 12pt;
       background: #f9fafb !important;
       margin: 15pt 0;
       font-style: italic;
+    }
+
+    /* Visible divider in preview so you know the token worked */
+    .prose-preview .page-break {
+      height: 0;
+      border-top: 1px dashed rgba(0,0,0,0.35);
+      margin: 24px 0;
     }
   </style>
 </head>
@@ -140,10 +198,44 @@
     const preview = document.getElementById('print-area');
     const stats = document.getElementById('stats');
 
+    if (typeof marked !== 'undefined') {
+      marked.setOptions({ gfm: true });
+    }
+
+    // Replace a line that is exactly: \pagebreak  (optional surrounding spaces)
+    function applyPageBreakTokens(md) {
+      return md.replace(/^\s*\\pagebreak\s*$/gm, '\n<div class="page-break"></div>\n');
+    }
+
+    function lastNonEmptyChildNode(el) {
+      for (let i = el.childNodes.length - 1; i >= 0; i--) {
+        const n = el.childNodes[i];
+        if (n.nodeType === Node.TEXT_NODE && !n.textContent.trim()) continue;
+        return n;
+      }
+      return null;
+    }
+
+    function getCleanExportHTML() {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = preview.innerHTML;
+
+      // Remove trailing page-breaks to prevent an extra blank last page
+      let last = lastNonEmptyChildNode(tmp);
+      while (last && last.nodeType === Node.ELEMENT_NODE && last.classList.contains('page-break')) {
+        last.remove();
+        last = lastNonEmptyChildNode(tmp);
+      }
+
+      return tmp.innerHTML;
+    }
+
     function update() {
       try {
-        const content = editor.value;
-        localStorage.setItem('markforge_acrobat_final', content);
+        const raw = editor.value;
+        localStorage.setItem('markforge_acrobat_final', raw);
+
+        const content = applyPageBreakTokens(raw);
 
         if (typeof marked !== 'undefined') {
           preview.innerHTML = marked.parse(content);
@@ -151,7 +243,7 @@
           preview.innerHTML = "<p style='color:red'>Error: Markdown parser failed to load. Please check your internet connection.</p>";
         }
 
-        stats.textContent = `Chars: ${content.length} | Lines: ${content.split('\\n').length}`;
+        stats.textContent = `Chars: ${raw.length} | Lines: ${raw.split('\n').length}`;
       } catch (e) {
         console.error("Rendering Error:", e);
       }
@@ -179,7 +271,6 @@
         iframe.style.border = '0';
         iframe.style.opacity = '0';
         iframe.setAttribute('aria-hidden', 'true');
-
         document.body.appendChild(iframe);
 
         const doc = iframe.contentDocument || iframe.contentWindow.document;
@@ -187,24 +278,30 @@
         doc.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
           <title>Export</title>
           <style>
-            @page { size: A4; margin: 2cm; }
+            @page { size: A4; margin: ${getComputedStyle(document.documentElement).getPropertyValue('--page-margin') || '2cm'}; }
             html, body { margin: 0; padding: 0; }
             body { background: #fff; color: #000; font-family: Arial, sans-serif; }
             .prose-preview { line-height: 1.5; color: #000; }
 
             .prose-preview h1 { border-bottom: 2pt solid #000; padding-bottom: 4pt; font-size: 24pt; font-weight: 800; margin: 0 0 12pt; color: #000; }
             .prose-preview h2 { border-bottom: 1pt solid #000; padding-bottom: 4pt; font-size: 18pt; font-weight: 700; margin: 20pt 0 10pt; color: #000; }
+            .prose-preview h3 { font-weight: 700; margin: 14pt 0 8pt; }
 
-            .prose-preview table { width: 100%; border-collapse: collapse; margin: 20pt 0; table-layout: fixed; border: 1.5pt solid #000; }
-            .prose-preview th, .prose-preview td { border: 1pt solid #000; padding: 8pt; text-align: left; word-wrap: break-word; font-size: 10pt; }
+            .prose-preview table { width: 100%; border-collapse: collapse; margin: 20pt 0; table-layout: fixed; border: 1.5pt solid #000; break-inside:auto; page-break-inside:auto; }
+            .prose-preview th, .prose-preview td { border: 1pt solid #000; padding: 8pt; text-align: left; word-wrap: break-word; font-size: 10pt; vertical-align: top; }
             .prose-preview th { background-color: #f3f4f6; font-weight: bold; }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+            tr { break-inside: avoid; page-break-inside: avoid; }
 
-            .prose-preview pre { background: #1e293b; color: #f8fafc; padding: 12pt; border-radius: 4pt; margin: 15pt 0; white-space: pre-wrap; font-size: 9pt; border: 1pt solid #000; }
-            .prose-preview blockquote { border-left: 4pt solid #4f46e5; padding: 5pt 12pt; background: #f9fafb; margin: 15pt 0; font-style: italic; }
+            .prose-preview pre { background: #1e293b; color: #f8fafc; padding: 12pt; border-radius: 4pt; margin: 15pt 0; white-space: pre-wrap; font-size: 9pt; border: 1pt solid #000; break-inside:auto; page-break-inside:auto; }
+            .prose-preview code { word-break: break-word; }
+            .prose-preview blockquote { border-left: 4pt solid #4f46e5; padding: 5pt 12pt; background: #f9fafb; margin: 15pt 0; font-style: italic; break-inside: avoid; page-break-inside: avoid; }
 
-            h1, h2, h3 { break-after: avoid-page; }
-            pre, blockquote, table { break-inside: avoid; }
-            tr, td, th { break-inside: avoid; }
+            .page-break { display:block; height:0; margin:0; border:0; break-before: page; page-break-before: always; }
+
+            h1, h2, h3 { break-after: avoid-page; page-break-after: avoid; }
+            p { orphans: 3; widows: 3; }
 
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           </style>
@@ -213,17 +310,14 @@
 
         const container = doc.createElement('div');
         container.className = 'prose-preview';
-        container.innerHTML = preview.innerHTML;
+        container.innerHTML = getCleanExportHTML();
         doc.body.appendChild(container);
 
         setTimeout(() => {
           const win = iframe.contentWindow;
           win.focus();
           win.print();
-
-          setTimeout(() => {
-            iframe.remove();
-          }, 500);
+          setTimeout(() => iframe.remove(), 500);
         }, 50);
 
       } catch (e) {
@@ -236,7 +330,22 @@
 
     window.onload = () => {
       const saved = localStorage.getItem('markforge_acrobat_final');
-      editor.value = saved || "# Project Review\\n\\n| Component | Status |\\n| :--- | :--- |\\n| Preview | Active |";
+      editor.value = saved || [
+        "# Project Review",
+        "",
+        "Welcome to the technical evaluation.",
+        "",
+        "## Section 1",
+        "Some content...",
+        "",
+        "- [ ] info",
+        "- [ ] info",
+        "",
+        "\\pagebreak",
+        "",
+        "# info",
+        "hello"
+      ].join("\n");
       update();
     };
   </script>
