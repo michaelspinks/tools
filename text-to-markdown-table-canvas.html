@@ -6,226 +6,113 @@
     <title>Markdown Table Canvas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Best Practice: CSS Variable System for Full Theme Control */
         :root {
-            --bg-main: #f8fafc;
+            --bg-page: #f8fafc;
             --bg-card: #ffffff;
-            --bg-stripes: #f1f5f9;
+            --bg-alt: #f1f5f9;
             --text-main: #0f172a;
-            --border-color: #e2e8f0;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #4f46e5;
         }
 
-        .dark {
-            --bg-main: #020617;
-            --bg-card: #0f172a;
-            --bg-stripes: #1e293b;
+        .dark-mode {
+            --bg-page: #020617; /* Deepest blue/black */
+            --bg-card: #0f172a; /* Card blue */
+            --bg-alt: #1e293b;  /* Header/Stripe blue */
             --text-main: #f1f5f9;
-            --border-color: #334155;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #818cf8;
         }
 
         body { 
-            background-color: var(--bg-main); 
+            background-color: var(--bg-page); 
             color: var(--text-main); 
-            transition: background-color 0.3s ease, color 0.3s ease; 
+            transition: background-color 0.2s, color 0.2s; 
+            font-family: system-ui, -apple-system, sans-serif;
         }
-        
-        .canvas-card { background-color: var(--bg-card); border: 1px solid var(--border-color); }
-        .canvas-header { background-color: var(--bg-stripes); border-bottom: 1px solid var(--border-color); }
-        
-        .preview-table table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
-        .preview-table th, .preview-table td { border: 1px solid var(--border-color); padding: 12px; }
-        .preview-table th { background-color: var(--bg-stripes); }
-        .preview-table tr:nth-child(even) { background-color: var(--bg-stripes); opacity: 0.7; }
 
-        textarea, input#tableTitle { 
-            font-family: 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace; 
+        .card { 
+            background-color: var(--bg-card); 
+            border: 1px solid var(--border); 
+            border-radius: 0.75rem;
+            overflow: hidden;
         }
+
+        .card-header { 
+            background-color: var(--bg-alt); 
+            border-bottom: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        /* Table Preview Sync */
+        .preview-table table { border-collapse: collapse; width: 100%; }
+        .preview-table th, .preview-table td { border: 1px solid var(--border); padding: 12px; }
+        .preview-table th { background-color: var(--bg-alt); }
+        .preview-table tr:nth-child(even) { background-color: var(--bg-alt); opacity: 0.6; }
+
+        textarea, input { 
+            background: transparent;
+            color: inherit;
+            font-family: 'ui-monospace', monospace;
+            font-size: 0.875rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .btn-toggle { padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--bg-card); }
+        .btn-primary { background-color: var(--accent); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; }
+        .btn-secondary { background: var(--bg-card); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; }
     </style>
 </head>
-<body id="appBody">
+<body id="app">
 
     <div class="max-w-6xl mx-auto p-4 md:p-8">
-        <header class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-                <h1 class="text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">Markdown Table Canvas</h1>
-                <p class="text-sm opacity-60">A distraction-free tool for structured data conversion.</p>
+                <h1 class="text-3xl font-black tracking-tight" style="color: var(--accent)">Markdown Table Canvas</h1>
+                <p class="text-sm opacity-70">Professional data-to-markdown workbench.</p>
             </div>
-            <div class="flex flex-wrap gap-2">
-                <button onclick="toggleTheme()" class="canvas-card p-2 rounded-lg shadow-sm hover:ring-2 hover:ring-indigo-400 transition" aria-label="Toggle dark mode">
-                    <span id="themeIcon">🌙</span>
-                </button>
-                <button onclick="clearCanvas()" class="px-4 py-2 text-sm font-semibold text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg hover:bg-red-100 transition">Clear</button>
-                <button onclick="copyToClipboard(this)" class="canvas-card px-4 py-2 text-sm font-semibold rounded-lg hover:shadow-md transition">Copy Markdown</button>
-                <button onclick="downloadMarkdown()" class="bg-indigo-600 text-white px-4 py-2 text-sm font-semibold rounded-lg hover:bg-indigo-700 transition shadow-md">Download .md</button>
+            <div class="flex gap-2">
+                <button onclick="toggleTheme()" class="btn-toggle" title="Toggle Theme"><span id="themeIcon">🌙</span></button>
+                <button onclick="clearAll()" class="btn-secondary text-red-500 border-red-200 dark:border-red-900">Clear</button>
+                <button onclick="copyMd()" class="btn-secondary">Copy Markdown</button>
+                <button onclick="downloadMd()" class="btn-primary">Download .md</button>
             </div>
         </header>
 
-        <div class="canvas-card p-4 mb-6 rounded-xl shadow-sm flex flex-col lg:flex-row gap-6 justify-between items-center">
-            <div class="w-full lg:w-1/2">
-                <label for="tableTitle" class="block text-[10px] font-bold uppercase opacity-50 mb-1 ml-1">Table Title (Optional)</label>
-                <input type="text" id="tableTitle" oninput="process()" placeholder="e.g., Weekly Sprint Metrics" 
-                    class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 transition">
+        <div class="card p-4 mb-6 flex flex-col lg:flex-row gap-6 justify-between items-center shadow-sm">
+            <div class="flex-1 w-full">
+                <label class="text-[10px] font-bold uppercase opacity-50 mb-1 block ml-1">Table Title</label>
+                <input type="text" id="title" oninput="update()" placeholder="e.g., Q1 Financial Results" 
+                    class="bg-slate-100 dark:bg-slate-900/50 p-2 rounded-lg">
             </div>
-            
             <div class="flex items-center gap-6">
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-bold uppercase opacity-50">Align</span>
-                    <div class="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
-                        <button onclick="setAlignment('left')" id="btn-left" class="align-btn px-3 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-300">Left</button>
-                        <button onclick="setAlignment('center')" id="btn-center" class="align-btn px-3 py-1 rounded-md text-xs font-bold opacity-50">Center</button>
-                        <button onclick="setAlignment('right')" id="btn-right" class="align-btn px-3 py-1 rounded-md text-xs font-bold opacity-50">Right</button>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold uppercase opacity-50">Align:</span>
+                    <div class="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-lg gap-1">
+                        <button onclick="setAlign('left')" id="al-left" class="px-3 py-1 rounded-md text-xs font-bold bg-white dark:bg-slate-700 shadow-sm text-indigo-600">Left</button>
+                        <button onclick="setAlign('center')" id="al-center" class="px-3 py-1 rounded-md text-xs font-bold opacity-50">Center</button>
+                        <button onclick="setAlign('right')" id="al-right" class="px-3 py-1 rounded-md text-xs font-bold opacity-50">Right</button>
                     </div>
                 </div>
-                <div id="stats" class="text-[10px] font-bold opacity-40 uppercase tracking-tighter">0 Rows | 0 Cols</div>
+                <div id="counter" class="text-[10px] font-bold opacity-40 uppercase">0 Rows | 0 Cols</div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="space-y-6">
-                <section class="canvas-card rounded-xl overflow-hidden shadow-sm">
-                    <div class="canvas-header px-4 py-2 flex justify-between items-center">
-                        <span class="text-[10px] font-bold uppercase opacity-50">1. Raw Input</span>
-                    </div>
-                    <textarea id="input" class="w-full h-64 p-4 bg-transparent outline-none resize-none text-sm" 
-                        placeholder="Paste data from Excel or a CSV file here..." oninput="process()"></textarea>
-                </section>
-
-                <section class="canvas-card rounded-xl overflow-hidden bg-slate-900 border-none shadow-sm">
-                    <div class="bg-slate-800/50 px-4 py-2 border-b border-slate-800 flex justify-between items-center">
-                        <span class="text-[10px] font-bold uppercase text-slate-500">2. Markdown Output</span>
-                    </div>
-                    <textarea id="output" readonly class="w-full h-64 p-4 bg-slate-950 text-indigo-300 outline-none resize-none text-sm" 
-                        placeholder="Markdown result..."></textarea>
-                </section>
-            </div>
-
-            <section class="canvas-card rounded-xl overflow-hidden flex flex-col shadow-sm">
-                <div class="canvas-header px-4 py-2">
-                    <span class="text-[10px] font-bold uppercase opacity-50">3. Live Preview</span>
+                <div class="card">
+                    <div class="card-header">1. Raw Input</div>
+                    <textarea id="input" class="h-64 p-4" placeholder="Paste Excel/CSV data here..." oninput="update()"></textarea>
                 </div>
-                <div id="preview" class="preview-table overflow-auto p-6 flex-grow min-h-[500px]"></div>
-            </section>
-        </div>
-    </div>
-
-    <script>
-        let config = {
-            align: 'left',
-            theme: localStorage.getItem('md-theme-canvas') || 'light'
-        };
-
-        // Initialization
-        window.onload = () => {
-            if (config.theme === 'dark') applyTheme(true);
-            const savedData = localStorage.getItem('md-canvas-content');
-            if (savedData) {
-                document.getElementById('input').value = savedData;
-                process();
-            }
-        };
-
-        function toggleTheme() {
-            const isDark = !document.getElementById('appBody').classList.contains('dark');
-            applyTheme(isDark);
-        }
-
-        function applyTheme(isDark) {
-            const body = document.getElementById('appBody');
-            body.classList.toggle('dark', isDark);
-            document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
-            localStorage.setItem('md-theme-canvas', isDark ? 'dark' : 'light');
-        }
-
-        function setAlignment(val) {
-            config.align = val;
-            document.querySelectorAll('.align-btn').forEach(btn => {
-                btn.classList.remove('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'text-indigo-600', 'dark:text-indigo-300');
-                btn.classList.add('opacity-50');
-            });
-            const active = document.getElementById('btn-' + val);
-            active.classList.add('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'text-indigo-600', 'dark:text-indigo-300');
-            active.classList.remove('opacity-50');
-            process();
-        }
-
-        function clearCanvas() {
-            if (confirm("Delete all data and start over?")) {
-                document.getElementById('input').value = "";
-                document.getElementById('tableTitle').value = "";
-                localStorage.removeItem('md-canvas-content');
-                process();
-            }
-        }
-
-        function process() {
-            const title = document.getElementById('tableTitle').value.trim();
-            const rawInput = document.getElementById('input').value;
-            localStorage.setItem('md-canvas-content', rawInput);
-
-            const input = rawInput.trim();
-            const outputArea = document.getElementById('output');
-            const previewArea = document.getElementById('preview');
-            const stats = document.getElementById('stats');
-
-            if (!input) {
-                outputArea.value = "";
-                previewArea.innerHTML = `<div class="h-full flex items-center justify-center opacity-20 italic">Empty Canvas</div>`;
-                stats.innerText = "0 Rows | 0 Cols";
-                return;
-            }
-
-            const rows = input.split('\n')
-                .filter(line => line.trim() !== '')
-                .map(line => {
-                    if (line.includes('\t')) return line.split('\t');
-                    if (line.includes(',')) return line.split(',');
-                    return line.split(/\s{2,}/); 
-                });
-
-            const cleanRows = rows.map(row => row.map(cell => cell.trim()));
-            stats.innerText = `${cleanRows.length} Rows | ${cleanRows[0]?.length || 0} Cols`;
-            
-            const alignKey = { left: '---', center: ':---:', right: '---:' }[config.align];
-            
-            let md = title ? `## ${title}\n\n` : "";
-            let html = title ? `<h2 class="text-xl font-bold dark:text-white">${title}</h2>` : "";
-            html += "<table><thead><tr>";
-
-            cleanRows.forEach((row, i) => {
-                md += `| ${row.join(' | ')} |\n`;
-                if (i === 0) {
-                    md += `| ${row.map(() => alignKey).join(' | ')} |\n`;
-                    row.forEach(c => html += `<th style="text-align:${config.align}">${c}</th>`);
-                    html += "</tr></thead><tbody>";
-                } else {
-                    html += "<tr>";
-                    row.forEach(c => html += `<td style="text-align:${config.align}">${c}</td>`);
-                    html += "</tr>";
-                }
-            });
-
-            outputArea.value = md;
-            previewArea.innerHTML = html + "</tbody></table>";
-        }
-
-        function copyToClipboard(btn) {
-            const out = document.getElementById('output');
-            out.select();
-            document.execCommand('copy');
-            const original = btn.innerText;
-            btn.innerText = "✓ Copied";
-            setTimeout(() => btn.innerText = original, 2000);
-        }
-
-        function downloadMarkdown() {
-            const content = document.getElementById('output').value;
-            if (!content) return;
-            const blob = new Blob([content], {type:'text/markdown'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `table-${new Date().getTime()}.md`;
-            a.click();
-        }
-    </script>
-</body>
-</html>
+                <div class="card" style="border:none; background:#020617">
+                    <div class="card-header" style="background:#1e293b; color:#94a3b8">2. Markdown Output</div>
+                    <textarea id="output" readonly class="h-64 p-4 text-indigo-300" placeholder="Markdown..."></
