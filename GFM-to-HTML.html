@@ -62,7 +62,7 @@
             </div>
         </div>
         <div class="flex gap-4">
-            <button onclick="copyHTML()" id="copy-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold border border-slate-600">Copy HTML</button>
+            <button onclick="copyHTML()" id="copy-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold border border-slate-600 text-white">Copy HTML</button>
             <button onclick="window.print()" class="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded text-xs transition uppercase shadow-lg">Export to PDF</button>
         </div>
     </header>
@@ -75,3 +75,36 @@
 
         <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex flex-col">
             <div class="flex-grow overflow-auto p-12 flex justify-center bg-slate-800/40">
+                <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm] p-16 prose-preview border border-slate-300"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const editor = document.getElementById('markdown-editor');
+        const preview = document.getElementById('print-area');
+        const stats = document.getElementById('stats');
+
+        function update() {
+            const content = editor.value;
+            localStorage.setItem('markforge_acrobat_final', content);
+            preview.innerHTML = marked.parse(content);
+            stats.textContent = `Chars: ${content.length} | Lines: ${content.split('\n').length}`;
+        }
+
+        async function copyHTML() {
+            await navigator.clipboard.writeText(preview.innerHTML);
+            const btn = document.getElementById('copy-btn');
+            btn.textContent = "✓ Copied";
+            setTimeout(() => btn.textContent = "Copy HTML", 1500);
+        }
+
+        editor.addEventListener('input', update);
+        window.onload = () => {
+            const saved = localStorage.getItem('markforge_acrobat_final');
+            editor.value = saved || "# Project Review\n\n| Component | Status |\n| :--- | :--- |\n| PDF Grid | Fixed |";
+            update();
+        };
+    </script>
+</body>
+</html>
