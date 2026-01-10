@@ -19,4 +19,5 @@ I too have taken up the gauntlet of HTML + Javascript tools, via LLMs and otherw
 ## Ghosts
 - [Ghost Adventure Location Avoider!](ghost-adventures-location-avoider.html)
 
-  
+## Documentation
+- [Markdown Table Canvas](text-to-markdown-table-canvas.html)
