@@ -6,218 +6,72 @@
     <title>Markdown Table Canvas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* CSS Variable System: These update everything at once */
+        /* Desaturated "Twilight" Palette - Compromise between Light/Dark */
         :root {
-            --bg-body: #f8fafc;
-            --bg-card: #ffffff;
-            --bg-header: #f1f5f9;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --accent: #4f46e5;
-        }
-
-        /* This is the palette that will be applied when you click the moon */
-        .theme-dark {
-            --bg-body: #020617; /* Deepest black/blue */
-            --bg-card: #0f172a; /* Card background */
-            --bg-header: #1e293b; /* Header stripe */
-            --text-main: #f1f5f9; /* White text */
-            --text-muted: #94a3b8;
-            --border: #334155; /* Dark borders */
-            --accent: #818cf8;
+            --bg-page: #1e293b;     /* Slate-800 */
+            --bg-card: #334155;     /* Slate-700 */
+            --bg-header: #475569;   /* Slate-600 */
+            --text-main: #f8fafc;   /* Slate-50 */
+            --text-muted: #cbd5e1;  /* Slate-300 */
+            --border: #475569;      /* Slate-600 */
+            --accent: #818cf8;      /* Indigo-400 */
+            --input-bg: #1e293b;    /* Slate-800 for depth */
         }
 
         body { 
-            background-color: var(--bg-body); 
+            background-color: var(--bg-page); 
             color: var(--text-main); 
-            transition: all 0.2s ease;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+            min-height: 100vh;
         }
 
-        /* Panel Styling */
-        .canvas-card { 
+        /* Themed Panel Components */
+        .themed-card { 
             background-color: var(--bg-card); 
             border: 1px solid var(--border); 
-            border-radius: 0.75rem;
-            overflow: hidden;
+            border-radius: 0.75rem; 
+            overflow: hidden; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
 
-        .canvas-header { 
+        .themed-header { 
             background-color: var(--bg-header); 
             border-bottom: 1px solid var(--border);
-            padding: 0.5rem 1rem;
-            font-size: 0.7rem;
+            color: var(--text-main);
+            font-size: 0.75rem;
             font-weight: 800;
             text-transform: uppercase;
+            padding: 0.6rem 1rem;
             letter-spacing: 0.05em;
-            color: var(--text-muted);
         }
 
-        /* Table Preview Sync */
+        .themed-input {
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        /* Table Preview Styles */
         .preview-table table { border-collapse: collapse; width: 100%; }
         .preview-table th, .preview-table td { border: 1px solid var(--border); padding: 12px; }
-        .preview-table th { background-color: var(--bg-header); }
-        .preview-table tr:nth-child(even) { background-color: var(--bg-header); opacity: 0.6; }
+        .preview-table th { background-color: var(--bg-header); color: white; }
+        .preview-table tr:nth-child(even) { background-color: var(--bg-header); opacity: 0.4; }
 
-        /* UI Elements */
-        textarea, input { 
-            background: transparent; 
-            color: inherit; 
-            font-family: 'ui-monospace', monospace; 
-            width: 100%; 
-            outline: none; 
-        }
-        
-        .btn-theme { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border); 
-            padding: 0.5rem; 
-            border-radius: 0.5rem; 
-        }
+        textarea { background: transparent; color: inherit; font-family: 'ui-monospace', monospace; resize: none; width: 100%; outline: none; }
+        ::placeholder { color: var(--text-muted); opacity: 0.5; }
     </style>
 </head>
-<body id="appBody" class="theme-dark"> <div class="max-w-6xl mx-auto p-4 md:p-8">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b pb-6" style="border-color: var(--border)">
+<body>
+
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
             <div>
                 <h1 class="text-3xl font-black tracking-tight" style="color: var(--accent)">Markdown Table Canvas</h1>
-                <p class="text-sm opacity-70">Professional data-to-markdown workbench.</p>
+                <p class="text-sm text-slate-400 font-medium">Fast data conversion with a neutral visual compromise.</p>
             </div>
-            <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="btn-theme" title="Toggle Mode"><span id="themeIcon">☀️</span></button>
-                <button onclick="clearAll()" class="px-4 py-2 text-sm font-bold text-red-500 bg-red-500/10 rounded-lg border border-red-500/20">Clear</button>
-                <button onclick="copyMd(this)" class="btn-theme px-4 py-2 text-sm font-bold">Copy Markdown</button>
-                <button onclick="downloadMd()" class="px-4 py-2 text-sm font-bold text-white rounded-lg shadow-md" style="background-color: var(--accent)">Download .md</button>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="clearAll()" class="px-4 py-2 text-sm font-bold text-slate-300 hover:text-red-400 bg-slate-700 rounded-lg border border-slate-600 transition">Clear Canvas</button>
+                <button onclick="copyMd(this)" class="px-4 py-2 text-sm font-bold bg-slate-700 rounded-lg border border-slate-600 hover:bg-slate-600 transition">Copy Markdown</button>
+                <button onclick="downloadMd()" class="px-4 py-2 text-sm font-bold text-white rounded-lg shadow-md hover:opacity-90 transition" style="background-color: var(--accent)">Download .md</button>
             </div>
         </header>
-
-        <div class="canvas-card p-4 mb-6 flex flex-col lg:flex-row gap-6 justify-between items-center shadow-sm">
-            <div class="flex-1 w-full">
-                <label class="text-[10px] font-bold uppercase opacity-50 mb-1 block ml-1">Table Title</label>
-                <input type="text" id="title" oninput="update()" placeholder="e.g., Monthly Sales Report" 
-                    class="p-2 rounded-lg border" style="border-color: var(--border); background: var(--bg-body)">
-            </div>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-bold uppercase opacity-50">Align:</span>
-                    <div class="flex p-1 rounded-lg gap-1" style="background-color: var(--bg-header)">
-                        <button onclick="setAlign('left')" id="al-left" class="px-3 py-1 rounded-md text-xs font-bold bg-white text-indigo-600 shadow-sm">Left</button>
-                        <button onclick="setAlign('center')" id="al-center" class="px-3 py-1 rounded-md text-xs font-bold opacity-50">Center</button>
-                        <button onclick="setAlign('right')" id="al-right" class="px-3 py-1 rounded-md text-xs font-bold opacity-50">Right</button>
-                    </div>
-                </div>
-                <div id="counter" class="text-[10px] font-bold opacity-40 uppercase">0 Rows | 0 Cols</div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="space-y-6">
-                <div class="canvas-card">
-                    <div class="canvas-header">1. Raw Input</div>
-                    <textarea id="input" class="h-64 p-4 text-sm" placeholder="Paste data here..." oninput="update()"></textarea>
-                </div>
-                <div class="canvas-card" style="background-color: #020617; border-color: transparent">
-                    <div class="canvas-header" style="background-color: #1e293b; border-color: #334155">2. Markdown Output</div>
-                    <textarea id="output" readonly class="h-64 p-4 text-sm text-indigo-300" placeholder="Resulting markdown..."></textarea>
-                </div>
-            </div>
-            <div class="canvas-card flex flex-col">
-                <div class="canvas-header">3. Visual Preview</div>
-                <div id="preview" class="preview-table p-6 flex-grow overflow-auto min-h-[500px]"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let align = 'left';
-
-        function toggleTheme() {
-            const body = document.getElementById('appBody');
-            const icon = document.getElementById('themeIcon');
-            const isDark = body.classList.toggle('theme-dark');
-            icon.innerText = isDark ? '☀️' : '🌙';
-            localStorage.setItem('canvas-theme', isDark ? 'dark' : 'light');
-        }
-
-        // Apply saved theme
-        if (localStorage.getItem('canvas-theme') === 'light') toggleTheme();
-
-        function setAlign(val) {
-            align = val;
-            ['left', 'center', 'right'].forEach(a => {
-                const btn = document.getElementById('al-' + a);
-                btn.className = a === val 
-                    ? "px-3 py-1 rounded-md text-xs font-bold bg-white text-indigo-600 shadow-sm" 
-                    : "px-3 py-1 rounded-md text-xs font-bold opacity-50";
-            });
-            update();
-        }
-
-        function clearAll() {
-            if(confirm("Clear data?")) {
-                document.getElementById('input').value = "";
-                document.getElementById('title').value = "";
-                update();
-            }
-        }
-
-        function update() {
-            const raw = document.getElementById('input').value.trim();
-            const title = document.getElementById('title').value.trim();
-            const out = document.getElementById('output');
-            const prev = document.getElementById('preview');
-            const cnt = document.getElementById('counter');
-
-            if (!raw) {
-                out.value = "";
-                prev.innerHTML = `<div class="h-full flex items-center justify-center opacity-20 italic">No data</div>`;
-                cnt.innerText = "0 Rows | 0 Cols";
-                return;
-            }
-
-            const rows = raw.split('\n').map(r => r.includes('\t') ? r.split('\t') : (r.includes(',') ? r.split(',') : r.split(/\s{2,}/)));
-            const clean = rows.map(r => r.map(c => c.trim()));
-            cnt.innerText = `${clean.length} Rows | ${clean[0].length} Cols`;
-
-            const sep = { left: '---', center: ':---:', right: '---:' }[align];
-            let md = title ? `### ${title}\n\n` : "";
-            let html = title ? `<h3 class="text-xl font-bold mb-4">${title}</h3>` : "";
-            html += "<table><thead><tr>";
-
-            clean.forEach((row, i) => {
-                md += `| ${row.join(' | ')} |\n`;
-                if (i === 0) {
-                    md += `| ${row.map(() => sep).join(' | ')} |\n`;
-                    row.forEach(c => html += `<th style="text-align:${align}">${c}</th>`);
-                    html += "</tr></thead><tbody>";
-                } else {
-                    html += "<tr>";
-                    row.forEach(c => html += `<td style="text-align:${align}">${c}</td>`);
-                    html += "</tr>";
-                }
-            });
-
-            out.value = md;
-            prev.innerHTML = html + "</tbody></table>";
-        }
-
-        function copyMd(btn) {
-            const out = document.getElementById('output');
-            out.select();
-            document.execCommand('copy');
-            const old = btn.innerText;
-            btn.innerText = "✓ Copied";
-            setTimeout(() => btn.innerText = old, 2000);
-        }
-
-        function downloadMd() {
-            const content = document.getElementById('output').value;
-            if(!content) return;
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([content], {type:'text/markdown'}));
-            a.download = 'table.md'; a.click();
-        }
-
-        update();
-    </script>
-</body>
-</html>
