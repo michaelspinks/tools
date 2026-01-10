@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forge PDF | Technical Markdown</title>
+    <title>MarkForge PDF</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <style>
-        body { background-color: #1e293b; color: #f8fafc; font-family: ui-sans-serif, system-ui, sans-serif; }
+        body { background-color: #1e293b; color: #f8fafc; }
         
+        /* Print Engine */
         @media print {
             body * { visibility: hidden; }
             #print-area, #print-area * { visibility: visible; }
@@ -16,62 +17,98 @@
                 position: absolute; left: 0; top: 0; width: 100% !important;
                 padding: 1.5cm !important; background: white !important; color: black !important;
             }
-            .page-break { page-break-before: always; }
             pre, blockquote, table { page-break-inside: avoid; }
         }
 
         /* Technical Print Typography */
-        .prose-preview { line-height: 1.6; color: #1e293b; }
-        .prose-preview h1 { border-bottom: 3px solid #0f172a; padding-bottom: 0.2em; font-size: 2.5em; font-weight: 800; margin-top: 0; color: #0f172a; letter-spacing: -0.02em; }
+        .prose-preview { line-height: 1.6; color: #1e293b; font-family: system-ui, sans-serif; }
+        .prose-preview h1 { border-bottom: 3px solid #0f172a; padding-bottom: 0.2em; font-size: 2.5em; font-weight: 800; margin-top: 0; color: #0f172a; }
         .prose-preview h2 { border-bottom: 1px solid #94a3b8; padding-bottom: 0.2em; font-size: 1.75em; font-weight: 700; margin-top: 1.5em; color: #334155; }
         
-        /* Rigid Table Control */
+        /* Table Containment Fix */
         .prose-preview table { 
             width: 100%; border-collapse: collapse; margin: 24px 0; 
-            table-layout: fixed; /* Hard constraint to container width */
+            table-layout: fixed; /* Strict containment */
         }
         .prose-preview th, .prose-preview td { 
             border: 1px solid #cbd5e1; padding: 10px; text-align: left; 
             word-wrap: break-word; overflow-wrap: break-word; font-size: 0.9em;
         }
-        .prose-preview th { background-color: #f1f5f9; font-weight: 700; color: #0f172a; }
+        .prose-preview th { background-color: #f1f5f9; font-weight: 700; }
 
-        .prose-preview code { background: #f1f5f9; padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; font-size: 0.85em; color: #be185d; }
-        .prose-preview pre { background: #1e293b; color: #f8fafc; padding: 1.5em; border-radius: 6px; overflow-x: auto; margin: 1.5em 0; }
-        .prose-preview blockquote { border-left: 5px solid #6366f1; padding: 0.5em 1.5em; color: #475569; background: #f8fafc; font-style: italic; margin: 1.5em 0; }
+        .prose-preview code { background: #f1f5f9; padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; font-size: 0.85em; color: #4338ca; }
+        .prose-preview pre { background: #1e293b; color: #f8fafc; padding: 1.5em; border-radius: 6px; overflow-x: auto; margin: 1.5em 0; white-space: pre-wrap; }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
     <header class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800 shadow-xl z-10">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-indigo-500 rounded flex items-center justify-center font-black text-slate-900">F</div>
+            <div class="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-black text-slate-900 text-xl italic">M</div>
             <div>
-                <h1 class="text-xl font-bold tracking-tight text-white">FORGE <span class="text-indigo-400">PDF</span></h1>
-                <p class="text-slate-500 text-[10px] uppercase font-bold tracking-tighter">Markdown to PDF Utility</p>
+                <h1 class="text-xl font-bold tracking-tight text-white uppercase">MarkForge</h1>
+                <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">Gfm Output Engine</p>
             </div>
         </div>
-        <div class="flex gap-4 items-center">
-            <button onclick="clearContent()" class="text-slate-400 hover:text-red-400 transition text-xs font-bold uppercase">Reset</button>
-            <button onclick="copyHTML()" id="btn-copy" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold transition border border-slate-600 text-slate-200">COPY HTML</button>
-            <button onclick="window.print()" class="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded text-xs transition shadow-lg uppercase tracking-widest">Print to PDF</button>
+        <div class="flex gap-4">
+            <button onclick="resetEditor()" class="text-slate-400 hover:text-red-400 transition text-xs font-bold uppercase">Reset</button>
+            <button onclick="copyHTML()" id="copy-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold border border-slate-600">Copy HTML</button>
+            <button onclick="window.print()" class="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded text-xs transition uppercase shadow-lg">Print to PDF</button>
         </div>
     </header>
 
     <main class="flex-grow p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
-        
-        <div class="flex flex-col gap-4 overflow-hidden">
-            <div class="bg-slate-700 rounded-lg border border-slate-600 flex flex-grow overflow-hidden shadow-inner">
-                <textarea id="editor" oninput="handleUpdate()" 
-                    class="flex-grow bg-slate-800/50 p-6 font-mono text-sm text-slate-300 outline-none focus:bg-slate-800 transition-colors resize-none"
-                    placeholder="# Project Draft..."></textarea>
+        <div class="flex flex-col gap-4 h-full">
+            <div class="flex-grow bg-slate-700 rounded-lg border border-slate-600 overflow-hidden shadow-inner flex flex-col">
+                <div class="bg-slate-600/50 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Markdown Editor</div>
+                <textarea id="markdown-editor" class="flex-grow bg-slate-800/50 p-6 font-mono text-sm text-slate-300 outline-none resize-none"></textarea>
             </div>
-            <div class="flex justify-between items-center px-1">
-                <div id="stats" class="text-[10px] font-mono text-slate-500 uppercase">Chars: 0 | Lines: 1</div>
-                <div class="text-[10px] font-mono text-slate-500 uppercase">Input: GFM v2.0</div>
-            </div>
+            <div id="stats" class="text-[10px] font-mono text-slate-500 uppercase px-1">Chars: 0 | Lines: 1</div>
         </div>
 
-        <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex flex-col shadow-2xl">
-            <div class="flex-grow overflow-auto bg-slate-800 p-8 flex justify-center">
-                <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm]
+        <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex flex-col">
+            <div class="bg-slate-800 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-indigo-400">A4 Visual Preview</div>
+            <div class="flex-grow overflow-auto p-8 flex justify-center bg-slate-800/50">
+                <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm] p-16 prose-preview shadow-2xl"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const editor = document.getElementById('markdown-editor');
+        const preview = document.getElementById('print-area');
+        const stats = document.getElementById('stats');
+
+        function update() {
+            const content = editor.value;
+            localStorage.setItem('markforge_save', content);
+            preview.innerHTML = marked.parse(content);
+            stats.textContent = `Chars: ${content.length} | Lines: ${content.split('\n').length}`;
+        }
+
+        function resetEditor() {
+            if(confirm("Wipe editor?")) {
+                editor.value = "";
+                update();
+            }
+        }
+
+        async function copyHTML() {
+            await navigator.clipboard.writeText(preview.innerHTML);
+            const btn = document.getElementById('copy-btn');
+            btn.textContent = "✓ Copied";
+            setTimeout(() => btn.textContent = "Copy HTML", 1500);
+        }
+
+        // Event Listeners
+        editor.addEventListener('input', update);
+
+        // Init
+        window.onload = () => {
+            const saved = localStorage.getItem('markforge_save');
+            editor.value = saved || "# Welcome to MarkForge\n\nEdit this text to see the live preview.";
+            update();
+        };
+    </script>
+</body>
+</html>
