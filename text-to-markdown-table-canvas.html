@@ -6,7 +6,7 @@
     <title>Markdown Table Canvas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* CSS Variable System for 100% Theme Coverage */
+        /* Robust CSS Variable System */
         :root {
             --bg-page: #f8fafc;
             --bg-panel: #ffffff;
@@ -34,6 +34,7 @@
             color: var(--text-base); 
             transition: background-color 0.2s, color 0.2s;
             font-family: ui-sans-serif, system-ui, sans-serif;
+            min-height: 100vh;
         }
 
         /* Themed Panel Components */
@@ -76,19 +77,19 @@
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b pb-6" style="border-color: var(--border)">
             <div>
                 <h1 class="text-3xl font-black tracking-tight" style="color: var(--accent)">Markdown Table Canvas</h1>
-                <p class="text-sm opacity-60">Fast-loading, local-first documentation workbench.</p>
+                <p class="text-sm opacity-60 font-medium">Professional data-to-markdown workbench.</p>
             </div>
-            <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="themed-card p-2 px-3 hover:opacity-80 transition" title="Toggle Theme">
+            <div class="flex flex-wrap gap-2">
+                <button onclick="toggleTheme()" class="themed-card p-2 px-3 hover:opacity-80 transition shadow-sm" title="Toggle Theme">
                     <span id="themeIcon">🌙</span>
                 </button>
-                <button onclick="clearAll()" class="themed-card px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-500/10">Clear</button>
-                <button onclick="copyMd(this)" class="themed-card px-4 py-2 text-sm font-bold hover:opacity-80">Copy Markdown</button>
-                <button onclick="downloadMd()" class="px-4 py-2 text-sm font-bold text-white rounded-lg transition" style="background-color: var(--accent)">Download .md</button>
+                <button onclick="clearAll()" class="themed-card px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-500/10 shadow-sm border-red-200 dark:border-red-900/30">Clear</button>
+                <button onclick="copyMd(this)" class="themed-card px-4 py-2 text-sm font-bold hover:opacity-80 shadow-sm">Copy Markdown</button>
+                <button onclick="downloadMd()" class="px-4 py-2 text-sm font-bold text-white rounded-lg transition shadow-md hover:opacity-90" style="background-color: var(--accent)">Download .md</button>
             </div>
         </header>
 
-        <div class="themed-card p-4 mb-6 flex flex-col lg:flex-row gap-6 justify-between items-center">
+        <div class="themed-card p-4 mb-6 flex flex-col lg:flex-row gap-6 justify-between items-center shadow-sm">
             <div class="flex-1 w-full">
                 <label class="text-[10px] font-bold uppercase opacity-50 mb-1 block ml-1">Table Title</label>
                 <input type="text" id="title" oninput="update()" placeholder="e.g., Monthly Sales Report" 
@@ -109,16 +110,16 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="space-y-6">
-                <div class="themed-card">
+                <div class="themed-card shadow-sm">
                     <div class="themed-header">1. Raw Input (Tabs/CSV)</div>
                     <textarea id="input" class="h-64 p-4 text-sm" placeholder="Paste spreadsheet data here..." oninput="update()"></textarea>
                 </div>
-                <div class="themed-card" style="background-color: var(--input-bg); border-color: var(--border)">
+                <div class="themed-card shadow-sm">
                     <div class="themed-header">2. Markdown Result</div>
-                    <textarea id="output" readonly class="h-64 p-4 text-sm text-indigo-400 font-bold" placeholder="Markdown code will appear here..."></textarea>
+                    <textarea id="output" readonly class="h-64 p-4 text-sm text-indigo-500 dark:text-indigo-300 font-bold" placeholder="Markdown..."></textarea>
                 </div>
             </div>
-            <div class="themed-card flex flex-col">
+            <div class="themed-card flex flex-col shadow-sm">
                 <div class="themed-header">3. Live Visual Preview</div>
                 <div id="preview" class="preview-table p-6 flex-grow overflow-auto min-h-[550px]">
                     <div class="h-full flex items-center justify-center opacity-20 italic">No data detected</div>
@@ -134,15 +135,23 @@
         };
 
         // Theme initialization
-        if (state.isDark) document.body.classList.add('dark-mode');
-        document.getElementById('themeIcon').innerText = state.isDark ? '☀️' : '🌙';
+        function applyTheme() {
+            if (state.isDark) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').innerText = '☀️';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('themeIcon').innerText = '🌙';
+            }
+        }
+
+        applyTheme();
         document.getElementById('input').value = localStorage.getItem('md-canvas-cache') || "";
         update();
 
         function toggleTheme() {
             state.isDark = !state.isDark;
-            document.body.classList.toggle('dark-mode');
-            document.getElementById('themeIcon').innerText = state.isDark ? '☀️' : '🌙';
+            applyTheme();
             localStorage.setItem('md-canvas-dark', state.isDark);
         }
 
@@ -195,42 +204,3 @@
             let md = title ? `### ${title}\n\n` : "";
             let html = title ? `<h3 class="text-xl font-bold mb-4">${title}</h3>` : "";
             html += "<table><thead><tr>";
-
-            clean.forEach((row, i) => {
-                md += `| ${row.join(' | ')} |\n`;
-                if (i === 0) {
-                    md += `| ${row.map(() => sep).join(' | ')} |\n`;
-                    row.forEach(c => html += `<th style="text-align:${state.align}">${c}</th>`);
-                    html += "</tr></thead><tbody>";
-                } else {
-                    html += "<tr>";
-                    row.forEach(c => html += `<td style="text-align:${state.align}">${c}</td>`);
-                    html += "</tr>";
-                }
-            });
-
-            out.value = md;
-            prev.innerHTML = html + "</tbody></table>";
-        }
-
-        function copyMd(btn) {
-            const out = document.getElementById('output');
-            out.select();
-            document.execCommand('copy');
-            const original = btn.innerText;
-            btn.innerText = "✓ Copied";
-            setTimeout(() => btn.innerText = original, 2000);
-        }
-
-        function downloadMd() {
-            const content = document.getElementById('output').value;
-            if (!content) return;
-            const blob = new Blob([content], {type: 'text/markdown'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `table-${Date.now()}.md`;
-            a.click();
-        }
-    </script>
-</body>
-</html>
