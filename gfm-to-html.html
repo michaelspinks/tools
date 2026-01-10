@@ -13,24 +13,36 @@
       --page-width: 210mm;
       --page-height: 297mm;
       --page-margin: 2cm;
-      --page-guide: rgba(0,0,0,0.10);
     }
 
     body { background-color: #1e293b; color: #f8fafc; font-family: 'Inter', sans-serif; }
 
-    /* Screen preview page guides */
-    #print-area{
-      background-image:
-        repeating-linear-gradient(
-          to bottom,
-          transparent 0,
-          transparent calc(var(--page-height) - 1px),
-          var(--page-guide) calc(var(--page-height) - 1px),
-          var(--page-guide) var(--page-height)
-        );
-      background-repeat: repeat-y;
-      background-size: 100% var(--page-height);
-      background-color: #fff;
+    /* Preview pages (screen) */
+    .pages {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      align-items: center;
+      padding: 24px 0;
+    }
+    .page {
+      width: var(--page-width);
+      min-height: var(--page-height);
+      background: #fff;
+      color: #000;
+      border: 1px solid rgba(148,163,184,0.6);
+      border-radius: 10px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      padding: var(--page-margin);
+      position: relative;
+    }
+    .page-number {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 11px;
+      color: rgba(0,0,0,0.45);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
     @media print {
@@ -43,50 +55,22 @@
         color: #000 !important;
       }
 
-      body {
-        display: block !important;
-        margin: 0 !important;
-      }
+      body { margin: 0 !important; }
 
+      /* App chrome off */
       .no-print { display: none !important; }
 
-      main {
-        display: block !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow: visible !important;
-      }
+      /* Never print the preview page “cards”; print the content only */
+      .pages { display: block !important; padding: 0 !important; }
+      .page { all: unset; display: block; }
+      .page-number { display: none !important; }
 
-      .print-shell,
-      .print-shell > div,
-      .print-shell > div > div {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow: visible !important;
-      }
-
-      #print-area {
-        background: #fff !important;
-        background-image: none !important;
-        width: 100% !important;
-        max-width: none !important;
-        min-height: auto !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-      }
-
-      /* Forced page breaks */
+      /* Forced page breaks in print */
       .page-break {
         display: block;
-        height: 0;
-        margin: 0;
-        border: 0;
+        height: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
         break-before: page;
         page-break-before: always; /* legacy */
       }
@@ -103,14 +87,12 @@
 
       /* Pre can be long, allow split */
       pre { break-inside: auto; page-break-inside: auto; }
-
-      /* Quote blocks generally keep together */
       blockquote { break-inside: avoid; page-break-inside: avoid; }
 
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
 
-    /* Typography */
+    /* Typography (shared) */
     .prose-preview { line-height: 1.5; color: #000; }
     .prose-preview h1 { border-bottom: 2pt solid #000; padding-bottom: 4pt; font-size: 24pt; font-weight: 800; margin-top: 0; color: #000; }
     .prose-preview h2 { border-bottom: 1pt solid #000; padding-bottom: 4pt; font-size: 18pt; font-weight: 700; margin-top: 20pt; color: #000; }
@@ -153,12 +135,8 @@
       font-style: italic;
     }
 
-    /* Visible divider in preview so you know the token worked */
-    .prose-preview .page-break {
-      height: 0;
-      border-top: 1px dashed rgba(0,0,0,0.35);
-      margin: 24px 0;
-    }
+    /* Ensure the page-break marker never shows in preview */
+    .page-break { display: none; }
   </style>
 </head>
 
@@ -191,23 +169,25 @@
     </div>
 
     <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex flex-col">
-      <div class="flex-grow overflow-auto p-12 flex justify-center bg-slate-800/40">
-        <div id="print-area" class="bg-white w-full max-w-[210mm] min-h-[297mm] p-16 prose-preview border border-slate-300"></div>
+      <div class="flex-grow overflow-auto p-8 flex justify-center bg-slate-800/40">
+        <div id="preview-pages" class="w-full"></div>
       </div>
     </div>
   </main>
 
   <script>
     const editor = document.getElementById('markdown-editor');
-    const preview = document.getElementById('print-area');
+    const previewPages = document.getElementById('preview-pages');
     const stats = document.getElementById('stats');
+
+    let exportHTML = "";
 
     if (typeof marked !== 'undefined') {
       marked.setOptions({ gfm: true });
     }
 
-    // Replace a line that is exactly: \pagebreak  (optional surrounding spaces)
     function applyPageBreakTokens(md) {
+      // line that is exactly: \pagebreak
       return md.replace(/^\s*\\pagebreak\s*$/gm, '\n<div class="page-break"></div>\n');
     }
 
@@ -220,18 +200,62 @@
       return null;
     }
 
-    function getCleanExportHTML() {
+    function stripTrailingPageBreaks(html) {
       const tmp = document.createElement('div');
-      tmp.innerHTML = preview.innerHTML;
+      tmp.innerHTML = html;
 
-      // Remove trailing page-breaks to prevent an extra blank last page
       let last = lastNonEmptyChildNode(tmp);
       while (last && last.nodeType === Node.ELEMENT_NODE && last.classList.contains('page-break')) {
         last.remove();
         last = lastNonEmptyChildNode(tmp);
       }
-
       return tmp.innerHTML;
+    }
+
+    function renderPreviewPagesFromHTML(html) {
+      // Split content into separate "page cards" at explicit page-break markers.
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'pages';
+
+      let pageIndex = 1;
+      let page = document.createElement('div');
+      page.className = 'page prose-preview';
+      let pageNo = document.createElement('div');
+      pageNo.className = 'page-number';
+      pageNo.textContent = `Page ${pageIndex}`;
+      page.appendChild(pageNo);
+
+      function newPage() {
+        wrapper.appendChild(page);
+        pageIndex += 1;
+        page = document.createElement('div');
+        page.className = 'page prose-preview';
+        pageNo = document.createElement('div');
+        pageNo.className = 'page-number';
+        pageNo.textContent = `Page ${pageIndex}`;
+        page.appendChild(pageNo);
+      }
+
+      // Move nodes into pages, splitting on .page-break nodes
+      const nodes = Array.from(tmp.childNodes);
+      for (const n of nodes) {
+        if (n.nodeType === Node.ELEMENT_NODE && n.classList.contains('page-break')) {
+          newPage();
+          continue;
+        }
+        page.appendChild(n);
+      }
+      // Append last page (even if empty, but avoid completely empty doc)
+      const hasMeaningful = Array.from(page.childNodes).some(n => !(n.nodeType === Node.ELEMENT_NODE && n.classList.contains('page-number')) && !(n.nodeType === Node.TEXT_NODE && !n.textContent.trim()));
+      if (wrapper.childNodes.length === 0 || hasMeaningful) {
+        wrapper.appendChild(page);
+      }
+
+      previewPages.innerHTML = '';
+      previewPages.appendChild(wrapper);
     }
 
     function update() {
@@ -242,9 +266,12 @@
         const content = applyPageBreakTokens(raw);
 
         if (typeof marked !== 'undefined') {
-          preview.innerHTML = marked.parse(content);
+          const rendered = marked.parse(content);
+          exportHTML = stripTrailingPageBreaks(rendered);
+          renderPreviewPagesFromHTML(exportHTML);
         } else {
-          preview.innerHTML = "<p style='color:red'>Error: Markdown parser failed to load. Please check your internet connection.</p>";
+          exportHTML = "";
+          previewPages.innerHTML = "<div style='color:red;padding:16px'>Error: Markdown parser failed to load. Please check your internet connection.</div>";
         }
 
         stats.textContent = `Chars: ${raw.length} | Lines: ${raw.split('\n').length}`;
@@ -255,7 +282,7 @@
 
     async function copyHTML() {
       try {
-        await navigator.clipboard.writeText(preview.innerHTML);
+        await navigator.clipboard.writeText(exportHTML || "");
         const btn = document.getElementById('copy-btn');
         btn.textContent = "✓ Copied";
         setTimeout(() => btn.textContent = "Copy HTML", 1500);
@@ -314,7 +341,7 @@
 
         const container = doc.createElement('div');
         container.className = 'prose-preview';
-        container.innerHTML = getCleanExportHTML();
+        container.innerHTML = exportHTML || '';
         doc.body.appendChild(container);
 
         setTimeout(() => {
@@ -335,20 +362,24 @@
     window.onload = () => {
       const saved = localStorage.getItem('markforge_acrobat_final');
       editor.value = saved || [
-        "# Project Review",
+        "# Executive Summary",
+        "The following table summarizes the data distribution observed during the Q1 testing phase.",
         "",
-        "Welcome to the technical evaluation.",
+        "| Component | Priority | Status |",
+        "| :--- | :--- | :--- |",
+        "| UI/UX Interface | High | Completed |",
+        "| API Integration | Med | Pending |",
+        "| PDF Export Engine | High | In Progress |",
         "",
-        "## Section 1",
-        "Some content...",
-        "",
+        "## Notes",
+        "- [ ] info",
         "- [ ] info",
         "- [ ] info",
         "",
         "\\pagebreak",
         "",
-        "# info",
-        "hello"
+        "# Info 2",
+        "This should appear at the top of the next preview page, without a giant empty area."
       ].join("\n");
       update();
     };
