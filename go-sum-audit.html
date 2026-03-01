@@ -97,7 +97,7 @@
         
         .tag-container { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
         .tag { 
-            font-size: 11px; background: white; padding: 2px 8px; 
+            font-size: 11px; background: var(--surface2); color: var(--text); padding: 2px 8px; 
             border-radius: 4px; border: 1px solid var(--border); font-family: monospace;
         }
 
@@ -284,7 +284,7 @@
         const report = document.getElementById('security-report');
         if (risks > 0) {
             report.innerHTML = `
-                <div style="padding:10px; background:#fef2f2; color:#b91c1c; border-radius:6px; border:1px solid #fecaca">
+                <div style="padding:10px; background:rgba(248,81,73,0.15); color:#f85149; border-radius:6px; border:1px solid rgba(248,81,73,0.3)">
                     <strong>High Alert:</strong> Found ${risks} pseudo-versions. These dependencies are pinned to specific commits rather than releases.
                 </div>`;
         } else {
