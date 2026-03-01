@@ -10,6 +10,9 @@ I too have taken up the gauntlet of HTML + Javascript tools, via LLMs and otherw
 ## Audit
 - [go.sum audit](go-sum-audit.html)
 
+## Design
+- [Colour Lookup](colour-code-lookup.html)
+
 ## Encoding / Decoding
 - [Base64 Encoder / Decoder](base64-encoder-decoder.html)
 - [URL Encoder / Decoder](url-encoder-decoder.html)
