@@ -2,6 +2,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Silver Market Monitor</title>
@@ -49,13 +52,31 @@
             transition: transform 0.3s ease;
         }
     </style>
+    <style>
+    :root {
+            --bg:          #0d1117;
+            --surface:     #161b22;
+            --surface2:    #1c2330;
+            --border:      #30363d;
+            --accent:      #2dd4bf;
+            --accent-dim:  #0d3330;
+            --text:        #e6edf3;
+            --text-muted:  #7d8590;
+            --text-dim:    #484f58;
+            --danger:      #f85149;
+            --warning:     #d29922;
+            --success:     #3fb950;
+            --mono:        'IBM Plex Mono', monospace;
+            --sans:        'IBM Plex Sans', sans-serif;
+        }
+</style>
 </head>
 <body class="bg-slate-800 text-slate-50 min-h-screen p-4 md:p-6">
     
     <!-- Header -->
     <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-indigo-400">Silver Market Monitor</h1>
+            <h1 class="text-3xl font-bold text-teal-400">Silver Market Monitor</h1>
             <p class="text-slate-400 mt-1">Real-time vault inventories & price tracking across global exchanges</p>
         </div>
         <div class="flex gap-2 no-print">
@@ -65,11 +86,11 @@
             </button>
             <button onclick="copyReport()" 
                     id="copyBtn"
-                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded transition">
+                    class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded transition">
                 Copy Report
             </button>
             <button onclick="downloadReport()" 
-                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded transition">
+                    class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded transition">
                 Download
             </button>
         </div>
@@ -83,7 +104,7 @@
                 <input type="password" 
                        id="apiKey" 
                        placeholder="Enter MetalpriceAPI key"
-                       class="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-slate-50 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                       class="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-slate-50 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
                        oninput="saveConfig()">
             </div>
             
@@ -100,7 +121,7 @@
             
             <div class="ml-auto">
                 <div class="text-xs uppercase text-slate-400">Last Updated</div>
-                <div id="lastUpdate" class="text-sm font-mono text-indigo-400">Never</div>
+                <div id="lastUpdate" class="text-sm font-mono text-teal-400">Never</div>
             </div>
         </div>
     </div>
@@ -122,7 +143,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                         <div class="bg-slate-800 rounded-lg p-4 text-center">
                             <div class="text-xs text-slate-400 uppercase mb-1">Global Visible Stock</div>
-                            <div id="quickGlobalTotal" class="text-2xl font-bold text-indigo-400">--</div>
+                            <div id="quickGlobalTotal" class="text-2xl font-bold text-teal-400">--</div>
                             <div class="text-xs text-slate-500 mt-1">million oz</div>
                         </div>
                         <div class="bg-slate-800 rounded-lg p-4 text-center">
@@ -184,7 +205,7 @@
                             <tfoot class="bg-slate-800 font-semibold">
                                 <tr>
                                     <td class="px-4 py-3" colspan="2">Total Visible</td>
-                                    <td class="text-right px-4 py-3 font-mono text-indigo-400" id="tableGlobalTotal">--</td>
+                                    <td class="text-right px-4 py-3 font-mono text-teal-400" id="tableGlobalTotal">--</td>
                                     <td class="px-4 py-3"></td>
                                     <td class="text-right px-4 py-3">100%</td>
                                     <td class="px-4 py-3"></td>
@@ -469,7 +490,7 @@
                 <div class="flex items-center gap-3">
                     <h2 class="font-semibold text-lg text-slate-50">💰 Current Prices</h2>
                     <button onclick="event.stopPropagation(); fetchPrices();" 
-                            class="text-xs px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded transition no-print">
+                            class="text-xs px-3 py-1 bg-teal-600 hover:bg-teal-500 rounded transition no-print">
                         Refresh
                     </button>
                 </div>
@@ -547,7 +568,7 @@
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-semibold text-slate-50">🇺🇸 COMEX (New York)</h3>
                             <button onclick="fetchComexData()" 
-                                    class="text-xs px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded transition">
+                                    class="text-xs px-3 py-1 bg-teal-600 hover:bg-teal-500 rounded transition">
                                 Fetch Data
                             </button>
                         </div>
@@ -564,7 +585,7 @@
                             </div>
                             <div>
                                 <div class="text-xs text-slate-400 mb-1">Total</div>
-                                <div id="comexTotal" class="text-xl font-mono text-indigo-400 font-semibold">--</div>
+                                <div id="comexTotal" class="text-xl font-mono text-teal-400 font-semibold">--</div>
                                 <div class="text-xs text-slate-500 mt-1">Last: <span id="comexDate">--</span></div>
                             </div>
                         </div>
@@ -584,14 +605,14 @@
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-semibold text-slate-50">🇬🇧 LBMA (London)</h3>
                             <button onclick="fetchLBMAData()" 
-                                    class="text-xs px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded transition">
+                                    class="text-xs px-3 py-1 bg-teal-600 hover:bg-teal-500 rounded transition">
                                 Fetch Data
                             </button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <div class="text-xs text-slate-400 mb-1">Total Holdings (tonnes)</div>
-                                <div id="lbmaTotal" class="text-xl font-mono text-indigo-400 font-semibold">--</div>
+                                <div id="lbmaTotal" class="text-xl font-mono text-teal-400 font-semibold">--</div>
                                 <div class="text-xs text-slate-500 mt-1">Monthly reporting</div>
                             </div>
                             <div>
@@ -615,14 +636,14 @@
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-semibold text-slate-50">🇨🇳 SHFE (Shanghai)</h3>
                             <button onclick="fetchSGEData()" 
-                                    class="text-xs px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded transition">
+                                    class="text-xs px-3 py-1 bg-teal-600 hover:bg-teal-500 rounded transition">
                                 Load Data
                             </button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <div class="text-xs text-slate-400 mb-1">Warehouse Stock (kg)</div>
-                                <div id="sgeKg" class="text-xl font-mono text-indigo-400 font-semibold">--</div>
+                                <div id="sgeKg" class="text-xl font-mono text-teal-400 font-semibold">--</div>
                                 <div class="text-xs text-slate-500 mt-1">Weekly reporting</div>
                             </div>
                             <div>
@@ -637,7 +658,7 @@
                             </div>
                         </div>
                         <div class="mt-4 p-3 bg-slate-700 rounded text-xs text-slate-400">
-                            <strong>Note:</strong> SHFE uses warehouse warrant system. All warranted stock is deliverable against futures contracts. <a href="https://tsite.shfe.com.cn/eng/reports/statistical/weekly/?paramid=weeklystock" target="_blank" class="text-indigo-400 hover:underline">View SHFE data</a>
+                            <strong>Note:</strong> SHFE uses warehouse warrant system. All warranted stock is deliverable against futures contracts. <a href="https://tsite.shfe.com.cn/eng/reports/statistical/weekly/?paramid=weeklystock" target="_blank" class="text-teal-400 hover:underline">View SHFE data</a>
                         </div>
                     </div>
 
@@ -1415,5 +1436,23 @@ Dashboard: https://silver-monitor.local`;
         // Initialize on load
         window.addEventListener('DOMContentLoaded', init);
     </script>
+
+    <div style="position:fixed;bottom:18px;left:18px;z-index:999;">
+        <a href="/tools/" style="
+            font-family:'IBM Plex Mono',monospace;
+            font-size:0.75em;
+            color:#7d8590;
+            text-decoration:none;
+            background:#161b22;
+            border:1px solid #30363d;
+            border-radius:6px;
+            padding:6px 12px;
+            transition:color 0.15s,border-color 0.15s;
+        " onmouseover="this.style.color='#2dd4bf';this.style.borderColor='#2dd4bf'"
+           onmouseout="this.style.color='#7d8590';this.style.borderColor='#30363d'">
+            ← all tools
+        </a>
+    </div>
+
 </body>
 </html>

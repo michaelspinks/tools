@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MarkForge | PDF Engine</title>
@@ -15,7 +18,7 @@
       --page-margin: 2cm;
     }
 
-    body { background-color: #1e293b; color: #f8fafc; font-family: 'Inter', sans-serif; }
+    body { background-color: #1e293b; color: #f8fafc; font-family: var(--sans); }
 
     /* Preview pages (screen) */
     .pages {
@@ -144,7 +147,7 @@
 
   <header class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800 z-10 no-print">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-indigo-500 rounded flex items-center justify-center font-black text-slate-900 text-xl italic shadow-md">M</div>
+      <div class="w-10 h-10 bg-teal-500 rounded flex items-center justify-center font-black text-slate-900 text-xl italic shadow-md">M</div>
       <div>
         <h1 class="text-xl font-bold tracking-tight text-white uppercase italic">MarkForge</h1>
         <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">High-Fidelity PDF Engine</p>
@@ -153,7 +156,7 @@
     <div class="flex gap-4">
       <button onclick="resetEditor()" id="reset-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold border border-slate-600 text-white transition">Reset</button>
       <button onclick="copyHTML()" id="copy-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold border border-slate-600 text-white transition">Copy HTML</button>
-      <button onclick="exportPDF()" class="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded text-xs transition uppercase shadow-lg">Export to PDF</button>
+      <button onclick="exportPDF()" class="px-6 py-2 bg-teal-500 hover:bg-teal-400 text-white font-black rounded text-xs transition uppercase shadow-lg">Export to PDF</button>
     </div>
   </header>
 
@@ -371,7 +374,25 @@
 
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           </style>
-        </head><body></body></html>`);
+        </head><body>
+    <div style="position:fixed;bottom:18px;left:18px;z-index:999;">
+        <a href="/tools/" style="
+            font-family:'IBM Plex Mono',monospace;
+            font-size:0.75em;
+            color:#7d8590;
+            text-decoration:none;
+            background:#161b22;
+            border:1px solid #30363d;
+            border-radius:6px;
+            padding:6px 12px;
+            transition:color 0.15s,border-color 0.15s;
+        " onmouseover="this.style.color='#2dd4bf';this.style.borderColor='#2dd4bf'"
+           onmouseout="this.style.color='#7d8590';this.style.borderColor='#30363d'">
+            ← all tools
+        </a>
+    </div>
+
+</body></html>`);
         doc.close();
 
         const container = doc.createElement('div');

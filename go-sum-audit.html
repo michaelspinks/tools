@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go Security & Integrity Canvas</title>
     <style>
         :root {
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --primary: #00add8;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --border: #e2e8f0;
-            --text: #1e293b;
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2330;
+            --border: #30363d;
+            --accent: #2dd4bf;
+            --text: #e6edf3;
+            --text-muted: #7d8590;
+            --danger: #f85149;
+            --warning: #d29922;
         }
 
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; padding: 20px; 
+            font-family: 'IBM Plex Sans', sans-serif; 
+            background: var(--bg); color: var(--text); margin: 0; padding: 20px; 
             line-height: 1.5; 
         }
 
@@ -37,7 +40,7 @@
         .canvas-grid { display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
         
         .card { 
-            background: var(--card); 
+            background: var(--surface); 
             padding: 24px; 
             border-radius: 12px; 
             border: 1px solid var(--border); 
@@ -49,10 +52,10 @@
             width: 100%; height: 180px; 
             padding: 12px; border: 1px solid var(--border); 
             border-radius: 8px; 
-            font-family: 'SFMono-Regular', Consolas, monospace; 
+            font-family: 'IBM Plex Mono', monospace; 
             font-size: 13px; box-sizing: border-box; 
             margin-bottom: 15px;
-            background: #fafafa;
+            background: var(--bg);
         }
 
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -69,8 +72,8 @@
             font-weight: 600; cursor: pointer; transition: all 0.2s; 
         }
 
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+        .btn-primary { background: var(--accent); color: #0d1117; }
+        .btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
         button:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .module-list { max-height: 600px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
@@ -81,14 +84,14 @@
             transition: background 0.1s;
         }
 
-        .module-item:hover { background: #fcfcfc; }
+        .module-item:hover { background: var(--surface2); }
         
         /* Risk Styling */
-        .risk-high { border-left: 6px solid var(--danger); background: #fef2f2; }
-        .risk-med { border-left: 6px solid var(--warning); background: #fffbeb; }
+        .risk-high { border-left: 6px solid var(--danger); background: rgba(248,81,73,0.1); }
+        .risk-med { border-left: 6px solid var(--warning); background: rgba(210,153,34,0.1); }
 
         .module-meta { display: flex; flex-direction: column; gap: 4px; }
-        .module-name { font-weight: 600; font-family: monospace; font-size: 13px; color: #2563eb; }
+        .module-name { font-weight: 600; font-family: monospace; font-size: 13px; color: var(--accent); }
         
         .tag-container { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
         .tag { 
@@ -105,13 +108,13 @@
 
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .stat-card { 
-            text-align: center; padding: 15px; background: #f8fafc; 
+            text-align: center; padding: 15px; background: var(--surface2); 
             border-radius: 8px; border: 1px solid var(--border); 
         }
-        .stat-val { display: block; font-size: 24px; font-weight: 800; color: var(--primary); }
-        .stat-label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; }
+        .stat-val { display: block; font-size: 24px; font-weight: 800; color: var(--accent); }
+        .stat-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
         
-        .legend { font-size: 12px; color: #64748b; margin-top: 20px; }
+        .legend { font-size: 12px; color: var(--text-muted); margin-top: 20px; }
         .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
         .dot { height: 10px; width: 10px; border-radius: 50%; }
     </style>
@@ -122,9 +125,9 @@
     <header>
         <div>
             <h1 style="margin: 0;">Go Supply Chain Canvas</h1>
-            <p style="color: #64748b; margin: 5px 0 0 0;">Dependency Auditor & Security Integrity Tool</p>
+            <p style="color: var(--text-muted); margin: 5px 0 0 0;">Dependency Auditor & Security Integrity Tool</p>
         </div>
-        <div id="lastUpdated" style="font-size: 12px; color: #94a3b8;"></div>
+        <div id="lastUpdated" style="font-size: 12px; color: var(--text-dim);"></div>
     </header>
 
     <div class="canvas-grid">
@@ -138,7 +141,7 @@
                 </div>
                 
                 <div id="moduleList" class="module-list">
-                    <div style="padding: 60px; text-align: center; color: #94a3b8;">
+                    <div style="padding: 60px; text-align: center; color: var(--text-dim);">
                         Paste a <code>go.sum</code> file to begin the security audit.
                     </div>
                 </div>
@@ -170,8 +173,8 @@
 
             <div class="card">
                 <h3 style="margin-top: 0; font-size: 16px;">Integrity Check</h3>
-                <p style="font-size: 12px; color: #64748b;">Run this in your terminal to verify integrity locally:</p>
-                <code style="display: block; background: #f1f5f9; padding: 10px; border-radius: 4px; font-size: 11px; word-break: break-all;">
+                <p style="font-size: 12px; color: var(--text-muted);">Run this in your terminal to verify integrity locally:</p>
+                <code style="display: block; background: var(--bg); padding: 10px; border-radius: 4px; font-size: 11px; word-break: break-all;">
                     go mod verify
                 </code>
             </div>
@@ -262,7 +265,7 @@
                         ${versionsArr.map(v => `<span class="tag">${v}</span>`).join('')}
                     </div>
                 </div>
-                <div style="font-size: 11px; color: #94a3b8;">
+                <div style="font-size: 11px; color: var(--text-dim);">
                     ${versionsArr.length > 1 ? '⚠️ Multi-version' : 'Stable'}
                 </div>
             `;
@@ -283,7 +286,7 @@
                     <strong>High Alert:</strong> Found ${risks} pseudo-versions. These dependencies are pinned to specific commits rather than releases.
                 </div>`;
         } else {
-            report.innerHTML = `<div style="color: #10b981;">✅ No immediate supply-chain red flags detected.</div>`;
+            report.innerHTML = `<div style="color: var(--accent);">✅ No immediate supply-chain red flags detected.</div>`;
         }
     }
 
@@ -302,6 +305,24 @@
         a.click();
     }
 </script>
+
+
+    <div style="position:fixed;bottom:18px;left:18px;z-index:999;">
+        <a href="/tools/" style="
+            font-family:'IBM Plex Mono',monospace;
+            font-size:0.75em;
+            color:#7d8590;
+            text-decoration:none;
+            background:#161b22;
+            border:1px solid #30363d;
+            border-radius:6px;
+            padding:6px 12px;
+            transition:color 0.15s,border-color 0.15s;
+        " onmouseover="this.style.color='#2dd4bf';this.style.borderColor='#2dd4bf'"
+           onmouseout="this.style.color='#7d8590';this.style.borderColor='#30363d'">
+            ← all tools
+        </a>
+    </div>
 
 </body>
 </html>

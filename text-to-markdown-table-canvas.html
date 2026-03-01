@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown Table Canvas</title>
@@ -14,14 +17,14 @@
             --text-main: #f8fafc;   /* Slate-50 */
             --text-muted: #cbd5e1;  /* Slate-300 */
             --border: #475569;      /* Slate-600 */
-            --accent: #818cf8;      /* Indigo-400 */
+            --accent: #2dd4bf;      /* Indigo-400 */
             --input-bg: #1e293b;    /* Slate-800 for depth */
         }
 
         body { 
             background-color: var(--bg-page); 
             color: var(--text-main); 
-            font-family: ui-sans-serif, system-ui, sans-serif;
+            font-family: var(--sans);
             min-height: 100vh;
         }
 
@@ -75,3 +78,9 @@
                 <button onclick="downloadMd()" class="px-4 py-2 text-sm font-bold text-white rounded-lg shadow-md hover:opacity-90 transition" style="background-color: var(--accent)">Download .md</button>
             </div>
         </header>
+
+    <div style="position:fixed;bottom:18px;left:18px;z-index:999;">
+        <a href="/tools/" style="font-family:'IBM Plex Mono',monospace;font-size:0.75em;color:#7d8590;text-decoration:none;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:6px 12px;" onmouseover="this.style.color='#2dd4bf';this.style.borderColor='#2dd4bf'" onmouseout="this.style.color='#7d8590';this.style.borderColor='#30363d'">← all tools</a>
+    </div>
+
+</html>
