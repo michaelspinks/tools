@@ -12,6 +12,7 @@ I too have taken up the gauntlet of HTML + Javascript tools, via LLMs and otherw
 
 ## Encoding / Decoding
 - [Base64 Encoder / Decoder](base64-encoder-decoder.html)
+- [URL Encoder / Decoder](url-encoder-decoder.html)
 
 ## Validation
 - [Semver Checker](semver-checker.html)
